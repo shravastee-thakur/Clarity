@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight, Mail } from "lucide-react";
 
 const ClarityCTA = () => {
@@ -53,9 +53,12 @@ const ClarityCTA = () => {
             {/* Trust Micro-copy */}
             <p className="mt-4 text-xs text-slate-500">
               By signing up, you agree to our{" "}
-              <a href="/privacy" className="underline hover:text-slate-700">
+              <Link
+                to={"/privacy-policy"}
+                className="underline hover:text-slate-700"
+              >
                 Clarity Privacy Policy
-              </a>
+              </Link>
               .
             </p>
           </div>

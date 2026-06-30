@@ -27,7 +27,10 @@ export const authenticate = async (
       throw new ApiError(401, "Unauthorized: No token provided");
     }
 
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.replace(/^Bearer\s+/, "");
+    if (!token) {
+      throw new ApiError(401, "Unauthorized: No token provided");
+    }
     const decoded = verifyAccessToken(token);
 
     if (!decoded || !decoded.id) {

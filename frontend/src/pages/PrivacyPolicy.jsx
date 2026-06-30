@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -6,7 +6,10 @@ import {
   Shield,
   Mail,
   ExternalLink,
+  CheckSquare,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 const PrivacyPolicy = () => {
   const [activeSection, setActiveSection] = useState("");
@@ -74,21 +77,21 @@ const PrivacyPolicy = () => {
       {/* --- TOP NAVBAR (Simplified) --- */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:shadow-lg transition-shadow duration-200">
-              A
+          <div className="flex items-center gap-2 group">
+            <div className="flex items-center space-x-2">
+              <CheckSquare className="h-7 w-7 text-[#0344a6]" />
+              <span className="text-xl font-bold text-[#172b4d] tracking-tight">
+                Clarity
+              </span>
             </div>
-            <span className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors duration-200">
-              Clarity
-            </span>
-          </a>
+          </div>
 
-          <a
-            href="/"
+          <Link
+            to={"/"}
             className="text-sm text-slate-600 hover:text-indigo-600 transition-colors duration-200 flex items-center gap-1"
           >
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -446,145 +449,8 @@ const PrivacyPolicy = () => {
         </div>
       </main>
 
-      {/* --- FOOTER (Matches Clarity Design) --- */}
-      <footer className="bg-[#172b4d] text-slate-300 pt-12 pb-6">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            {/* Brand */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-lg">
-                  A
-                </div>
-                <span className="text-xl font-bold text-white">Clarity</span>
-              </div>
-              <p className="text-slate-400 text-sm">
-                The workspace that moves at the speed of thought.
-              </p>
-            </div>
-
-            {/* Legal Links */}
-            <div>
-              <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-                Legal
-              </h3>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="/privacy"
-                    className="text-cyan-400 text-sm hover:underline"
-                  >
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/terms"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/cookies"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    Cookie Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Security */}
-            <div>
-              <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-                Security
-              </h3>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="/security"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    Security Overview
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/report-vulnerability"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    Report a Vulnerability
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="mailto:security@Clarity.work"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    security@Clarity.work
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Copyright */}
-            <div>
-              <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-                Company
-              </h3>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="/about"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    About Clarity
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/careers"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/contact"
-                    className="text-slate-400 text-sm hover:text-cyan-400 transition-colors duration-200"
-                  >
-                    Contact Us
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-slate-500 text-sm text-center md:text-left">
-              Copyright © 2026 Shravastee Thakur. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4">
-              <a
-                href="/privacy"
-                className="text-slate-500 hover:text-white text-sm transition-colors duration-200"
-              >
-                Privacy
-              </a>
-              <a
-                href="/terms"
-                className="text-slate-500 hover:text-white text-sm transition-colors duration-200"
-              >
-                Terms
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* --- FOOTER --- */}
+      <Footer />
 
       {/* Scroll to Top Button */}
       {showScrollTop && (

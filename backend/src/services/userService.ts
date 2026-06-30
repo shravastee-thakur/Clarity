@@ -86,7 +86,7 @@ const generateOtp = () => String(crypto.randomInt(100000, 1000000));
 // Otp save
 export const processLoginOtp = async (email: string) => {
   const otp = generateOtp();
-  await otpService.saveOtp(email, hashedOtp(otp));
+  await otpService.saveOtp(email, hashedOtp(otp), "login");
   emailService.sendLoginOtpEmail(email, otp);
   return { success: true, message: "OTP sent successfully." };
 };
@@ -185,7 +185,7 @@ export const sendResetOTP = async (email: string) => {
   }
 
   const otp = generateOtp();
-  await otpService.saveOtp(email, hashedOtp(otp));
+  await otpService.saveOtp(email, hashedOtp(otp), "reset");
   emailService.sendPasswordResetEmail(email, otp);
   return {
     success: true,
@@ -193,29 +193,48 @@ export const sendResetOTP = async (email: string) => {
   };
 };
 
-export const resetPasswordWithOTP = async (
-  email: string,
-  otp: string,
-  newPassword: string,
-) => {
+export const verifyResetCode = async (email: string, otp: string) => {
   const inputHash = hashedOtp(otp);
 
-  const isValid = await otpService.consumeOtp(email, inputHash);
+  const resetToken = await otpService.verifyAndIssueResetToken(
+    email,
+    inputHash,
+  );
+  if (!resetToken) {
+    throw new ApiError(401, "Invalid or expired OTP");
+  }
+
+  return { success: true, resetToken };
+};
+
+export const updatePasswordWithToken = async (
+  email: string,
+  resetToken: string,
+  newPassword: string,
+) => {
+  const isValid = await otpService.consumeResetToken(email, resetToken);
   if (!isValid) {
-    throw new ApiError(401, "Invalid, expired, or exhausted OTP");
+    throw new ApiError(401, "Invalid or expired reset token");
   }
 
   const user = await userRepo.findByEmail(email);
   if (!user) throw new ApiError(404, "User not found");
 
   user.password = newPassword;
+
+  // Critical security step: Invalidate all existing sessions upon password change
+  user.refreshToken = "";
   await user.save();
+
+  return { success: true, message: "Password updated successfully" };
 };
 
 // ------x------(logout)-----
 
 export const logout = async (userId: string) => {
-  if (!userId) return;
+  if (!userId) {
+    throw new ApiError(400, "User ID is required for logout");
+  }
 
   await userRepo.updateUser(userId, { refreshToken: "" });
 };

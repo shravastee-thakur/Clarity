@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, Loader2, CheckSquare } from "lucide-react";
+import api from "../../utils/axiosinstance";
+import { useAuthStore } from "../../store/authStore";
+import toast from "react-hot-toast";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { setUserEmail } = useAuthStore();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -10,11 +16,33 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => setIsLoading(false), 2000);
+    try {
+      const res = await api.post("/api/v1/users/otp-requests", formData);
+      console.log(res);
+
+      if (res.data.success) {
+        setUserEmail(res.data.email);
+        toast.success(res.data.message, {
+          style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+        });
+        navigate("/verifyOtp");
+      }
+    } catch (error) {
+      let message = "Something went wrong. Please try again.";
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error) {
+        message = error.message;
+      }
+      toast.error(message, {
+        style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -28,7 +56,7 @@ const Login = () => {
               Clarity
             </span>
           </div>
-          <h1 className="text-xl font-semibold text-[#172b4d]">Welcome back</h1>
+          <h1 className="text-xl font-semibold text-[#760031]">Welcome back</h1>
           <p className="text-sm text-[#172b4d]/60 mt-1">
             Sign in to your Clarity workspace
           </p>
@@ -93,6 +121,15 @@ const Login = () => {
             </div>
           </div>
 
+          <div className="flex justify-end">
+            <Link
+              to="/forget-password"
+              className="text-sm text-[#760031] transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -112,7 +149,7 @@ const Login = () => {
 
         {/* Sign Up Link */}
         <p className="mt-6 text-center text-sm text-[#172b4d]/60">
-          Don't have an account?{" "}
+          Don't have an account?
           <a
             href="/signup"
             className="text-[#0344a6] hover:underline font-semibold"

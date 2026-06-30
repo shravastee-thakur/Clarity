@@ -120,6 +120,23 @@ export const createPasswordReset = async (
   }
 };
 
+// POST /password-resets
+export const verifyResetOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const validatedData = verifyOtpSchema.parse(req.body);
+    const { email, otp } = validatedData;
+    const result = await userService.verifyResetCode(email, otp);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // PATCH /password-resets
 export const updatePassword = async (
   req: Request,
@@ -127,14 +144,15 @@ export const updatePassword = async (
   next: NextFunction,
 ) => {
   try {
-    const validatedData = resetPasswordSchema.parse(req.body);
-    const { email, otp, newPassword } = validatedData;
-    await userService.resetPasswordWithOTP(email, otp, newPassword);
-
-    return res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
-    });
+    const { email, resetToken, newPassword } = resetPasswordSchema.parse(
+      req.body,
+    );
+    const result = await userService.updatePasswordWithToken(
+      email,
+      resetToken,
+      newPassword,
+    );
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }

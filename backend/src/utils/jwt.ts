@@ -27,7 +27,7 @@ export const generateRefreshToken = (payload: TokenPayload) => {
 
 export const verifyAccessToken = (token: string): TokenPayload => {
   try {
-    return jwt.verify(accessSecret, token) as TokenPayload;
+    return jwt.verify(token, accessSecret) as TokenPayload;
   } catch (error) {
     throw new ApiError(401, "Invalid or expired access token");
   }

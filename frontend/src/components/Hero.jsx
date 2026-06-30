@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const Hero = () => {
@@ -15,10 +15,13 @@ const Hero = () => {
           real-time synchronization that feels like second nature.
         </p>
 
-        <button className="inline-flex items-center px-8 py-3 bg-[#0344a6] text-white font-semibold rounded-lg hover:bg-[#0344a6]/90 transition-colors shadow-lg shadow-[#0344a6]/20">
+        <Link
+          to={"/login"}
+          className="inline-flex items-center px-8 py-3 bg-[#0344a6] text-white font-semibold rounded-lg hover:bg-[#0344a6]/90 transition-colors shadow-lg shadow-[#0344a6]/20"
+        >
           Enter
           <ArrowRight className="ml-2 h-5 w-5" />
-        </button>
+        </Link>
       </div>
     </section>
   );

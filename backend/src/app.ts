@@ -28,7 +28,7 @@ app.use(sanitizeMiddleware);
 
 // Routes
 app.use("/api/v1/users", userRoutes);
-// http://localhost:8080/api/v1/users/register
+// http://localhost:8080/api/v1/users/
 
 app.use(errorHandler);
 export default app;

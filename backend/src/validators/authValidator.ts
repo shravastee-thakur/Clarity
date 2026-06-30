@@ -39,10 +39,9 @@ export type ForgetPasswordInput = z.infer<typeof forgetPasswordSchema>;
 
 export const resetPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
-  otp: z
+  resetToken: z
     .string()
-    .length(6, "OTP must be 6 digits")
-    .regex(/^\d+$/, "OTP must contain only numbers"),
+    .min(64, "Reset token must me atleast 64 characters long"),
   newPassword: z
     .string()
     .min(6, "Password must be at least 6 characters")

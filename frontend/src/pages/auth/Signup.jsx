@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   User,
   Mail,
@@ -8,8 +8,12 @@ import {
   Loader2,
   CheckSquare,
 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../../utils/axiosinstance";
+import toast from "react-hot-toast";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,13 +27,37 @@ const Signup = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agreed) return;
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => setIsLoading(false), 2000);
+    try {
+      const res = await api.post("/api/v1/users/", formData);
+      console.log(res);
+      if (res.data.success) {
+        toast.success(res.data.message, {
+          style: {
+            borderRadius: "10px",
+            background: "#25671E",
+            color: "#fff",
+          },
+        });
+        navigate("/login");
+      }
+    } catch (error) {
+      let message = "Something went wrong. Please try again.";
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error) {
+        message = error.message;
+      }
+      toast.error(message, {
+        style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -43,12 +71,9 @@ const Signup = () => {
               Clarity
             </span>
           </div>
-          <h1 className="text-xl font-semibold text-[#172b4d]">
+          <h1 className="text-xl font-semibold text-[#760031]">
             Create your account
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Start organizing your workspace today.
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -147,12 +172,12 @@ const Signup = () => {
               className="text-sm text-[#172b4d] cursor-pointer"
             >
               I agree to the{" "}
-              <a
-                href="#"
+              <Link
+                to={"/privacy-policy"}
                 className="text-[#0344a6] hover:underline font-medium"
               >
                 Clarity Privacy Policy
-              </a>
+              </Link>
             </label>
           </div>
 
@@ -175,10 +200,13 @@ const Signup = () => {
 
         {/* Sign In Link */}
         <p className="mt-6 text-center text-sm text-[#172b4d]">
-          Already have an account?{" "}
-          <a href="#" className="text-[#0344a6] hover:underline font-semibold">
+          Already have an account?
+          <Link
+            to={"/login"}
+            className="text-[#0344a6] hover:underline font-semibold"
+          >
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

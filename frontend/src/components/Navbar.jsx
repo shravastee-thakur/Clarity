@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   CheckSquare,
   ChevronDown,
@@ -9,6 +9,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -37,12 +38,12 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to={"/"} className="flex items-center space-x-2">
             <CheckSquare className="h-7 w-7 text-[#0344a6]" />
             <span className="text-xl font-bold text-[#172b4d] tracking-tight">
               Clarity
             </span>
-          </div>
+          </Link>
 
           {/* Desktop User Dropdown */}
           <div className="hidden md:block relative" ref={dropdownRef}>
