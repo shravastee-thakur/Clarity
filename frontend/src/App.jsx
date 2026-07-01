@@ -7,10 +7,15 @@ import Login from "./pages/auth/Login";
 import VerifyOtp from "./pages/auth/VerifyOtp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+// import WorkspaceGuard from "./components/WorkspaceGuard";
 
 import Home from "./pages/Home";
 import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyResetOtp from "./pages/auth/VerifyResetOtp";
+
+import WorkspaceSetup from "./pages/workspace/WorkspaceSetup";
+import InviteAcceptance from "./pages/workspace/InviteAcceptance";
+import PendingAccess from "./pages/workspace/PendingAccess";
 
 const App = () => {
   return (
@@ -26,6 +31,12 @@ const App = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+        {/* <Route element={<WorkspaceGuard />}> */}
+        <Route path="/workspace/setup" element={<WorkspaceSetup />} />
+        <Route path="/workspace/invite" element={<InviteAcceptance />} />
+        <Route path="/workspace/pending" element={<PendingAccess />} />
+        {/* </Route> */}
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />

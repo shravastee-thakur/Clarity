@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Shield, CheckCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import api from "../../utils/axiosinstance";
 import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
@@ -39,10 +39,16 @@ const VerifyOtp = () => {
 
       if (res.data.success) {
         if (res.data.success) {
-          setAccessToken(res.data.accessToken);
-          setIsVerified(res.data.user.isVerified);
-          setUserInfo(res.data.user);
-          setRole(res.data.user.role);
+          const { accessToken, user } = res.data;
+          const { workspaceStatus, activeWorkspaceId } = user;
+
+          setAccessToken(accessToken);
+          setIsVerified(user.isVerified);
+          setUserInfo(user);
+          setRole(user.role);
+          setWorkspaceStatus(workspaceStatus);
+          setActiveWorkspaceId(activeWorkspaceId);
+
           toast.success(res.data.message, {
             style: {
               borderRadius: "10px",
@@ -50,15 +56,20 @@ const VerifyOtp = () => {
               color: "#fff",
             },
           });
-          navigate("/");
+
+          if (workspaceStatus === "setup") navigate("/workspace/setup");
+          else if (workspaceStatus === "invited") navigate("/workspace/invite");
+          else if (workspaceStatus === "pending")
+            navigate("/workspace/pending");
+          else navigate("/");
         }
       }
-    } catch (error) {
+    } catch (err) {
       let message = "Something went wrong. Please try again.";
-      if (error.response?.data?.message) {
-        message = error.response.data.message;
-      } else if (error) {
-        message = error.message;
+      if (err.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err) {
+        message = err.message;
       }
       toast.error(message, {
         style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
@@ -136,13 +147,13 @@ const VerifyOtp = () => {
 
         {/* Back Link */}
         <div className="mt-4 text-center">
-          <a
-            href="/forgot-password"
+          <Link
+            to={"/forgot-password"}
             className="inline-flex items-center gap-1.5 text-sm text-[#0344a6] hover:underline font-semibold"
           >
             <ArrowLeft className="h-4 w-4" />
             Change email
-          </a>
+          </Link>
         </div>
       </div>
     </div>

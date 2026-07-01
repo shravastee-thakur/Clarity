@@ -1,6 +1,6 @@
 import { env } from "../config/env.js";
 import { Response } from "express";
-import { UserDto } from "../services/userService.js";
+import { UserContext } from "../services/userService.js";
 
 interface AuthTokens {
   accessToken: string;
@@ -10,7 +10,7 @@ interface AuthTokens {
 export const sendAuthResponse = (
   res: Response,
   tokens: AuthTokens,
-  user: UserDto,
+  user: UserContext,
   message: string = "Success",
 ) => {
   return res
@@ -31,6 +31,8 @@ export const sendAuthResponse = (
         email: user.email,
         role: user.role,
         isVerified: user.isVerified,
+        workspaceStatus: user.workspaceStatus,
+        activeWorkspaceId: user.activeWorkspaceId,
       },
     });
 };

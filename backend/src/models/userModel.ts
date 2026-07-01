@@ -5,7 +5,7 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
-  role: "admin" | "user";
+  role: "admin" | "employee";
   refreshToken: string;
   isVerified: boolean;
   createdAt?: Date;
@@ -30,6 +30,7 @@ const userSchema = new Schema<IUser, UserModel>(
       required: true,
       unique: true,
       trim: true,
+      lowercase: true,
     },
     password: {
       type: String,
@@ -39,8 +40,8 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     role: {
       type: String,
-      enum: ["admin", "user"],
-      default: "user",
+      enum: ["admin", "employee"],
+      default: "employee",
     },
     refreshToken: {
       type: String,

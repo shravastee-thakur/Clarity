@@ -1,6 +1,7 @@
 import { env } from "../config/env.js";
 import * as userRepo from "../repositories/userRepo.js";
 import * as otpService from "../services/otpService.js";
+import * as inviteRepo from "../repositories/inviteRepo.js";
 import { UserDocument, CreateUserInput } from "../repositories/userRepo.js";
 import { ApiError } from "../utils/apiError.js";
 import crypto from "crypto";
@@ -11,12 +12,13 @@ import {
   verifyRefreshToken,
 } from "../utils/jwt.js";
 import * as emailService from "../services/emailService.js";
+import { LoginInput } from "../validators/authValidator.js";
 
 export interface UserDto {
   _id: string;
   name: string;
   email: string;
-  role: "admin" | "user";
+  role: "admin" | "employee";
   refreshToken: string;
   isVerified: boolean;
   createdAt?: Date;
@@ -29,10 +31,6 @@ export interface UserContext extends UserDto {
 }
 
 export interface RegisterInput extends CreateUserInput {}
-export interface LoginInput {
-  email: string;
-  password: string;
-}
 
 const mapToUserDto = (user: UserDocument): UserDto => {
   const obj = user.toObject();
@@ -59,6 +57,25 @@ export const createUser = async (userData: RegisterInput): Promise<UserDto> => {
   const user = await userRepo.createUser(userData);
 
   return mapToUserDto(user);
+};
+
+// -----x-----(workspace logic)------
+
+export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
+  if (user.role === "admin") {
+    return { ...user, workspaceStatus: "setup" };
+  }
+
+  const activeInvite = await inviteRepo.findActiveInviteByEmail(user.email);
+  if (activeInvite) {
+    return {
+      ...user,
+      workspaceStatus: "invited",
+      activeWorkspaceId: activeInvite.workspaceId.toString(),
+    };
+  }
+
+  return { ...user, workspaceStatus: "pending" };
 };
 
 // -----x-----(login)------
@@ -115,7 +132,9 @@ export const verifyUserOtp = async (email: string, otp: string) => {
     user = updatedUser;
   }
 
-  return mapToUserDto(user);
+  const userDto = mapToUserDto(user);
+  const userContext = await buildUserContext(userDto);
+  return userContext;
 };
 
 // -----x-----(token rotate)--------

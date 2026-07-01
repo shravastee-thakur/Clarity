@@ -6,6 +6,8 @@ export interface IWorkspaceInvite {
   status: "pending" | "accepted" | "declined";
   invitedBy: mongoose.Types.ObjectId;
   expiresAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const workspaceInviteSchema = new Schema<IWorkspaceInvite>(
@@ -13,7 +15,8 @@ const workspaceInviteSchema = new Schema<IWorkspaceInvite>(
     email: {
       type: String,
       required: true,
-      index: true,
+      lowercase: true,
+      trim: true,
     },
     workspaceId: {
       type: Schema.Types.ObjectId,
@@ -33,10 +36,14 @@ const workspaceInviteSchema = new Schema<IWorkspaceInvite>(
     expiresAt: {
       type: Date,
       required: true,
+      // This index tells MongoDB to automatically delete the document when this date passes
+      index: { expires: 0 },
     },
   },
   { timestamps: true },
 );
+
+workspaceInviteSchema.index({ email: 1, status: 1 });
 
 const WorkspaceInvite: Model<IWorkspaceInvite> =
   mongoose.model<IWorkspaceInvite>("WorkspaceInvite", workspaceInviteSchema);

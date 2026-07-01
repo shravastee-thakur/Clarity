@@ -87,10 +87,12 @@ export const createToken = async (
     const { accessToken, refreshToken, user } =
       await userService.rotateRefreshToken(oldToken);
 
+    const userContext = await userService.buildUserContext(user);
+
     return sendAuthResponse(
       res,
       { accessToken, refreshToken },
-      user,
+      userContext,
       "Token refreshed",
     );
   } catch (error) {
