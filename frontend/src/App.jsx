@@ -22,7 +22,7 @@ const App = () => {
         <Route path="/verifyOtp" element={<VerifyOtp />} />
 
         <Route path="/forget-password" element={<ForgotPassword />} />
-        <Route path="/verifyResetOtp" element={<VerifyResetOtp />} />
+        <Route path="/verifyResetOtp/:email" element={<VerifyResetOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />

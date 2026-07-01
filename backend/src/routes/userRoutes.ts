@@ -24,7 +24,7 @@ router.post(
   userController.createOtpRequest,
 );
 
-// Verify otp
+// Verify otp (Login)
 router.post(
   "/sessions",
   securityMiddleware,
@@ -39,7 +39,9 @@ router.delete("/sessions", authenticate, userController.destroySession);
 // Refresh
 router.post("/tokens", userController.createToken);
 
-// Forget password
+// --- PASSWORD RESET FLOW ---
+
+// 1. Forget password (Initiates reset, sends OTP via email)
 router.post(
   "/password-resets",
   sanitizeMiddleware,
@@ -47,9 +49,19 @@ router.post(
   userController.createPasswordReset,
 );
 
-// Reset password
+// 2. Verify Reset OTP (Verifies OTP, issues intermediate reset token)
+router.post(
+  "/password-resets/verify",
+  securityMiddleware,
+  sanitizeMiddleware,
+  rateLimiterMiddleware(5, 60),
+  userController.verifyResetOtp,
+);
+
+// 3. Reset password (Consumes intermediate reset token, updates password)
 router.patch(
   "/password-resets",
+  securityMiddleware,
   sanitizeMiddleware,
   rateLimiterMiddleware(3, 60),
   userController.updatePassword,

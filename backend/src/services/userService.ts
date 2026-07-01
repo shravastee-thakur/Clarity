@@ -16,12 +16,16 @@ export interface UserDto {
   _id: string;
   name: string;
   email: string;
-  password: string;
   role: "admin" | "user";
   refreshToken: string;
   isVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface UserContext extends UserDto {
+  workspaceStatus: "setup" | "invited" | "pending" | "active";
+  activeWorkspaceId?: string;
 }
 
 export interface RegisterInput extends CreateUserInput {}
@@ -37,7 +41,6 @@ const mapToUserDto = (user: UserDocument): UserDto => {
     _id: obj._id.toString(),
     name: obj.name,
     email: obj.email,
-    password: obj.password,
     role: obj.role,
     refreshToken: obj.refreshToken,
     isVerified: obj.isVerified,

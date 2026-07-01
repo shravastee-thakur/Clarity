@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Mail, Loader2, CheckSquare, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/axiosinstance";
+import toast from "react-hot-toast";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -13,21 +14,21 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-      const res = await api.post("/api/v1/users/password-resets", email);
+      const res = await api.post("/api/v1/users/password-resets", { email });
       console.log(res);
 
       if (res.data.success) {
         toast.success(res.data.message, {
           style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
         });
-        navigate("/verifyResetOtp");
+        navigate(`/verifyResetOtp/${email}`);
       }
-    } catch (error) {
+    } catch (err) {
       let message = "Something went wrong. Please try again.";
-      if (error.response?.data?.message) {
-        message = error.response.data.message;
-      } else if (error) {
-        message = error.message;
+      if (err.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err) {
+        message = err.message;
       }
       toast.error(message, {
         style: { borderRadius: "10px", background: "#25671E", color: "#fff" },

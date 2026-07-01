@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Lock, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
+import {
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import api from "../../utils/axiosinstance";
+import toast from "react-hot-toast";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -11,13 +20,15 @@ const ResetPassword = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { email, otp } = location.state || {};
+  const { email, resetToken } = location.state || {};
 
   useEffect(() => {
-    if (!email || !otp) navigate("/forgot-password");
-  }, [email, otp, navigate]);
+    if (!email || !resetToken) {
+      navigate("/forgot-password");
+    }
+  }, [email, resetToken, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -27,18 +38,35 @@ const ResetPassword = () => {
     }
 
     setIsLoading(true);
-
-    // Simulate API call to update password with email, otp, newPassword
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate("/login", {
-        state: { message: "Password reset successfully. Please log in." },
+    try {
+      const res = await api.post("/api/v1/users/password-resets", {
+        email,
+        resetToken,
+        newPassword,
       });
-    }, 1500);
+      if (res.data.success) {
+        toast.success(res.data.message, {
+          style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+        });
+        navigate("/login");
+      }
+    } catch (err) {
+      let message = "Something went wrong. Please try again.";
+      if (err.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err) {
+        message = err.message;
+      }
+      toast.error(message, {
+        style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-300 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg border border-slate-200 p-8">
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 bg-[#0344a6]/10 rounded-full flex items-center justify-center mb-4">
@@ -53,8 +81,9 @@ const ResetPassword = () => {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-slate-50 border border-slate-200 text-[#172b4d] text-sm rounded-lg text-center font-medium">
-            {error}
+          <div className="mb-4 p-3 bg-slate-100 border border-slate-200 text-[#172b4d] text-sm rounded-lg text-center font-medium flex items-center justify-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -81,6 +110,7 @@ const ResetPassword = () => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#172b4d]/40 hover:text-[#172b4d] transition-colors"
+                aria-label="Toggle password visibility"
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5" />
