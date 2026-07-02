@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model } from "mongoose";
 
-export interface IWorkspaceInvite {
+export interface IInvite {
   email: string;
   workspaceId: mongoose.Types.ObjectId;
   status: "pending" | "accepted" | "declined";
@@ -10,7 +10,7 @@ export interface IWorkspaceInvite {
   updatedAt?: Date;
 }
 
-const workspaceInviteSchema = new Schema<IWorkspaceInvite>(
+const inviteSchema = new Schema<IInvite>(
   {
     email: {
       type: String,
@@ -43,9 +43,8 @@ const workspaceInviteSchema = new Schema<IWorkspaceInvite>(
   { timestamps: true },
 );
 
-workspaceInviteSchema.index({ email: 1, status: 1 });
+inviteSchema.index({ email: 1, status: 1 });
 
-const WorkspaceInvite: Model<IWorkspaceInvite> =
-  mongoose.model<IWorkspaceInvite>("WorkspaceInvite", workspaceInviteSchema);
+const Invite: Model<IInvite> = mongoose.model<IInvite>("Invite", inviteSchema);
 
-export default WorkspaceInvite;
+export default Invite;

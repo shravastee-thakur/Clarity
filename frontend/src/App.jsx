@@ -16,6 +16,7 @@ import VerifyResetOtp from "./pages/auth/VerifyResetOtp";
 import WorkspaceSetup from "./pages/workspace/WorkspaceSetup";
 import InviteAcceptance from "./pages/workspace/InviteAcceptance";
 import PendingAccess from "./pages/workspace/PendingAccess";
+import Pricing from "./pages/Pricing";
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/pricing" element={<Pricing />} />
         </Route>
       </Routes>
     </>

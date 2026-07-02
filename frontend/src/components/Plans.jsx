@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const Plans = () => {
@@ -66,13 +66,13 @@ const Plans = () => {
 
         {/* View All Pricing Button */}
         <div className="text-center">
-          <a
-            href="/pricing"
+          <Link
+            to={"/pricing"}
             className="inline-flex items-center gap-2 px-8 py-4 bg-cyan-300 hover:bg-cyan-100 text-black font-semibold rounded-lg transition-all duration-300 hover:scale-105 shadow-lg shadow-blue-900/20"
           >
             View Clarity Pricing
             <ArrowRight className="w-5 h-5" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
