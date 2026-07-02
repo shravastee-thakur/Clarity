@@ -7,6 +7,8 @@ export interface IWorkspaceMember {
   joinedAt: Date;
 }
 
+// The role in your User model defines their global platform identity. It dictates if they have the power to create a workspace in the first place. The role in the WorkspaceMember model defines their local permissions inside a specific workspace.
+
 const workspaceMemberSchema = new Schema<IWorkspaceMember>({
   workspace: {
     type: Schema.Types.ObjectId,

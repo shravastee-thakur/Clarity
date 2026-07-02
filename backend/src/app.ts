@@ -7,6 +7,7 @@ import { errorHandler } from "./middlewares/errorMiddleware.js";
 import { sanitizeMiddleware } from "./middlewares/sanitize.js";
 
 import userRoutes from "./routes/userRoutes.js";
+import workspaceRoutes from "./routes/workspaceRoutes.js";
 
 const app = express();
 
@@ -27,8 +28,14 @@ app.use(
 app.use(sanitizeMiddleware);
 
 // Routes
+
+// Auth
 app.use("/api/v1/users", userRoutes);
 // http://localhost:8080/api/v1/users/
+
+// Workspace
+app.use("/api/v1/workspace", workspaceRoutes);
+// http://localhost:8080/api/v1/workspace/
 
 app.use(errorHandler);
 export default app;

@@ -1,6 +1,18 @@
 import mongoose, { Schema, Model } from "mongoose";
 
-export interface ITask {}
+export interface ITask {
+  title: string;
+  description?: string;
+  project: mongoose.Types.ObjectId;
+  workspace: mongoose.Types.ObjectId;
+  assignee: mongoose.Types.ObjectId;
+  createdBy: mongoose.Types.ObjectId;
+  status: "todo" | "in_progress" | "blocked" | "done";
+  priority: "low" | "medium" | "high";
+  dueDate: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 const taskSchema = new Schema<ITask>(
   {
