@@ -23,15 +23,15 @@ export const findWorkspaceById = async (
   return Workspace.findById(id).exec();
 };
 
-export const incrementMemberCount = async (
-  id: string,
-): Promise<WorkspaceDocument | null> => {
-  return Workspace.findByIdAndUpdate(
-    id,
-    { $inc: { memberCount: 1 } },
-    { new: true },
-  ).exec();
-};
+// export const incrementMemberCount = async (
+//   id: string,
+// ): Promise<WorkspaceDocument | null> => {
+//   return Workspace.findByIdAndUpdate(
+//     id,
+//     { $inc: { memberCount: 1 } },
+//     { new: true },
+//   ).exec();
+// };
 
 export const addWorkspaceMember = async (
   data: Partial<IWorkspaceMember>,
@@ -47,4 +47,10 @@ export const findWorkspaceMember = async (
     workspace: workspaceId,
     user: userId,
   }).exec();
+};
+
+export const findWorkspaceByOwner = async (
+  ownerId: string,
+): Promise<WorkspaceDocument | null> => {
+  return Workspace.findOne({ owner: ownerId }).exec();
 };

@@ -39,8 +39,9 @@ export const assignTask = async (
   data: any,
 ): Promise<TaskDto> => {
   const member = await workspaceRepo.findWorkspaceMember(workspaceId, userId);
-  if (!member)
-    throw new ApiError(403, "You are not a member of this workspace");
+  if (!member || member.role !== "admin") {
+    throw new ApiError(403, "Only workspace admins can assign tasks");
+  }
 
   const assigneeMember = await workspaceRepo.findWorkspaceMember(
     workspaceId,

@@ -17,6 +17,10 @@ import WorkspaceSetup from "./pages/workspace/WorkspaceSetup";
 import InviteAcceptance from "./pages/workspace/InviteAcceptance";
 import PendingAccess from "./pages/workspace/PendingAccess";
 import Pricing from "./pages/Pricing";
+import Layout from "./pages/workspace/Layout";
+import Dashboard from "./pages/workspace/Dashboard";
+import Projects from "./pages/workspace/Projects";
+import Tasks from "./pages/workspace/Tasks";
 
 const App = () => {
   return (
@@ -38,6 +42,13 @@ const App = () => {
         <Route path="/workspace/invite" element={<InviteAcceptance />} />
         <Route path="/workspace/pending" element={<PendingAccess />} />
         {/* </Route> */}
+
+        <Route path="/workspace" element={<Layout />}>
+          {/* Index route makes Dashboard show up by default at "/" */}
+          <Route index element={<Dashboard />} />
+          <Route path="projects" element={<Projects />} />
+          <Route path="tasks" element={<Tasks />} />
+        </Route>
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />

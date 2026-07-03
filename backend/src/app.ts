@@ -8,6 +8,8 @@ import { sanitizeMiddleware } from "./middlewares/sanitize.js";
 
 import userRoutes from "./routes/userRoutes.js";
 import workspaceRoutes from "./routes/workspaceRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
+import taskRoutes from "./routes/taskRoutes.js";
 
 const app = express();
 
@@ -33,9 +35,15 @@ app.use(sanitizeMiddleware);
 app.use("/api/v1/users", userRoutes);
 // http://localhost:8080/api/v1/users/
 
-// Workspace
-app.use("/api/v1/workspace", workspaceRoutes);
-// http://localhost:8080/api/v1/workspace/
+// Phase 2
+app.use("/api/v1/workspaces", workspaceRoutes);
+// http://localhost:8080/api/v1/workspaces/
+
+app.use("/api/v1/", projectRoutes);
+// http://localhost:8080/api/v1/workspaces/:workspaceId/projects
+
+app.use("/api/v1/", taskRoutes);
+// http://localhost:8080/api/v1/workspaces/:workspaceId/tasks
 
 app.use(errorHandler);
 export default app;

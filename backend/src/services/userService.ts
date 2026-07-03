@@ -2,6 +2,7 @@ import { env } from "../config/env.js";
 import * as userRepo from "../repositories/userRepo.js";
 import * as otpService from "../services/otpService.js";
 import * as inviteRepo from "../repositories/inviteRepo.js";
+import * as workspaceRepo from "../repositories/workspaceRepo.js";
 import { UserDocument, CreateUserInput } from "../repositories/userRepo.js";
 import { ApiError } from "../utils/apiError.js";
 import crypto from "crypto";
@@ -18,7 +19,6 @@ export interface UserDto {
   _id: string;
   name: string;
   email: string;
-  role: "admin" | "employee";
   refreshToken: string;
   isVerified: boolean;
   createdAt?: Date;
@@ -39,7 +39,6 @@ const mapToUserDto = (user: UserDocument): UserDto => {
     _id: obj._id.toString(),
     name: obj.name,
     email: obj.email,
-    role: obj.role,
     refreshToken: obj.refreshToken,
     isVerified: obj.isVerified,
     createdAt: obj.createdAt,
@@ -62,10 +61,17 @@ export const createUser = async (userData: RegisterInput): Promise<UserDto> => {
 // -----x-----(workspace logic)------
 
 export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
-  if (user.role === "admin") {
-    return { ...user, workspaceStatus: "setup" };
+  // 1. Check if the user already owns an active workspace
+  const ownedWorkspace = await workspaceRepo.findWorkspaceByOwner(user._id);
+  if (ownedWorkspace) {
+    return {
+      ...user,
+      workspaceStatus: "active",
+      activeWorkspaceId: ownedWorkspace._id.toString(),
+    };
   }
 
+  // 2. Check if they have an active invite to join a team
   const activeInvite = await inviteRepo.findActiveInviteByEmail(user.email);
   if (activeInvite) {
     return {
@@ -75,6 +81,7 @@ export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
     };
   }
 
+  // 3. If they own nothing and have no invites, send them to setup
   return { ...user, workspaceStatus: "pending" };
 };
 
@@ -142,7 +149,6 @@ export const verifyUserOtp = async (email: string, otp: string) => {
 export const createTokensAndSave = async (user: UserDto) => {
   const tokenPayload = {
     id: user._id.toString(),
-    role: user.role,
   };
 
   const accessToken = generateAccessToken(tokenPayload);

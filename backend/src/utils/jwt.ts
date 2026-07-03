@@ -4,7 +4,6 @@ import { ApiError } from "./apiError.js";
 
 export interface TokenPayload extends JwtPayload {
   id: string;
-  role: string;
 }
 
 const accessSecret = env.ACCESS_SECRET;
