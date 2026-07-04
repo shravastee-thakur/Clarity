@@ -25,6 +25,8 @@ import InviteAcceptance from "./pages/workspace/InviteAcceptance";
 import Dashboard from "./pages/workspace/Dashboard";
 import Projects from "./pages/workspace/Projects";
 import Tasks from "./pages/workspace/Tasks";
+import VerifyMagic from "./pages/auth/VerifyMagic";
+import AcceptInvite from "./pages/workspace/AcceptInvite";
 
 const App = () => {
   return (
@@ -42,10 +44,13 @@ const App = () => {
         {/* --- AUTH ROUTES --- */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/verifyOtp" element={<VerifyOtp />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/forget-password" element={<ForgotPassword />} />
-        <Route path="/verifyResetOtp/:email" element={<VerifyResetOtp />} />
+        <Route path="/verify-reset-otp/:email" element={<VerifyResetOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+
+        <Route path="/magic-link" element={<VerifyMagic />} />
+        <Route path="/accept-invite" element={<AcceptInvite />} />
 
         {/* --- PROTECTED ROUTES --- */}
         {/* <Route element={<WorkspaceGuard />}> */}

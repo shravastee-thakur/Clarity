@@ -12,6 +12,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import api from "../../utils/axiosinstance";
+import toast from "react-hot-toast";
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -27,9 +29,16 @@ const Layout = () => {
     { path: "/workspace/members", icon: Users, label: "Members" },
   ];
 
-  const handleLogout = () => {
-    clearAuth();
-    navigate("/login");
+  const handleLogout = async () => {
+    const res = await api.delete("/api/v1/users/sessions");
+    if (res.data.success) {
+      toast.success(res.data.message, {
+        style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+      });
+
+      clearAuth();
+      navigate("/login");
+    }
   };
 
   return (
@@ -39,10 +48,10 @@ const Layout = () => {
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col`}
       >
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200">
-          <div className="flex items-center gap-2">
+          <Link to={"/"} className="flex items-center gap-2">
             <CheckSquare className="h-6 w-6 text-[#0344a6]" />
             <span className="text-lg font-bold text-[#172b4d]">Clarity</span>
-          </div>
+          </Link>
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-[#172b4d]"

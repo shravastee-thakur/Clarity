@@ -1,15 +1,16 @@
 import { env } from "../config/env.js";
 import * as userRepo from "../repositories/userRepo.js";
 import * as otpService from "../services/otpService.js";
-import * as inviteRepo from "../repositories/inviteRepo.js";
 import * as workspaceRepo from "../repositories/workspaceRepo.js";
 import { UserDocument, CreateUserInput } from "../repositories/userRepo.js";
 import { ApiError } from "../utils/apiError.js";
 import crypto from "crypto";
 import {
   generateAccessToken,
+  generateMagicToken,
   generateRefreshToken,
   TokenPayload,
+  verifyMagicToken,
   verifyRefreshToken,
 } from "../utils/jwt.js";
 import * as emailService from "../services/emailService.js";
@@ -26,7 +27,7 @@ export interface UserDto {
 }
 
 export interface UserContext extends UserDto {
-  workspaceStatus: "setup" | "invited" | "active";
+  workspaceStatus: "setup" | "active";
   activeWorkspaceId?: string;
 }
 
@@ -71,17 +72,7 @@ export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
     };
   }
 
-  // 2. Check if they have an active invite to join a team
-  const activeInvite = await inviteRepo.findActiveInviteByEmail(user.email);
-  if (activeInvite) {
-    return {
-      ...user,
-      workspaceStatus: "invited",
-      activeWorkspaceId: activeInvite.workspaceId.toString(),
-    };
-  }
-
-  // 3. If they own nothing and have no invites, send them to setup
+  // 2. If they have no memberships, they must create a workspace
   return { ...user, workspaceStatus: "setup" };
 };
 
@@ -265,4 +256,70 @@ export const logout = async (userId: string) => {
   }
 
   await userRepo.updateUser(userId, { refreshToken: "" });
+};
+
+// ------x------(Magic Link)-----
+export const requestMagicLogin = async (email: string) => {
+  const user = await userRepo.findByEmail(email);
+
+  if (!user) {
+    return {
+      success: true,
+      message: "If an account exists, a login link has been sent.",
+    };
+  }
+
+  const userDto = mapToUserDto(user);
+
+  // Use the new explicit magic token generator
+  const loginToken = generateMagicToken(
+    { id: userDto._id, email: userDto.email },
+    "magic_login",
+  );
+
+  emailService.sendMagicLoginEmail(userDto.email, loginToken);
+
+  return {
+    success: true,
+    message: "If an account exists, a login link has been sent.",
+  };
+};
+
+// Verify Magic Login Link
+export const verifyMagicLogin = async (token: string) => {
+  let decoded;
+  try {
+    // Call the utility function, not the service function itself
+    decoded = verifyMagicToken(token, "magic_login");
+  } catch (error) {
+    throw new ApiError(401, "Invalid or expired login link");
+  }
+
+  const user = await userRepo.findById(decoded.id);
+  if (!user) throw new ApiError(404, "User not found");
+
+  if (user.email !== decoded.email) {
+    throw new ApiError(401, "Token email mismatch");
+  }
+
+  if (!user.isVerified) {
+    user.isVerified = true;
+    await user.save();
+  }
+
+  const userDto = mapToUserDto(user);
+  const userContext = await buildUserContext(userDto);
+
+  return userContext;
+};
+
+export const emailCheck = async (
+  email: string,
+): Promise<{ exists: boolean; hasPassword: boolean }> => {
+  const user = await userRepo.findByEmail(email);
+  if (!user) {
+    return { exists: false, hasPassword: false };
+  }
+
+  return { exists: true, hasPassword: !!user.password };
 };

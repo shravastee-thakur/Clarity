@@ -14,6 +14,8 @@ const envSchema = z.object({
   ACCESS_SECRET: z.string().min(1),
   REFRESH_SECRET: z.string().min(1),
 
+  MAGIC_SECRET: z.string().min(1),
+
   IOREDIS_URL: z.string().url("IOREDIS_URL must be a valid URL"),
 
   BREVO_API_KEY: z.string().min(1),

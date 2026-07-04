@@ -186,3 +186,63 @@ export const destroySession = async (
     next(error);
   }
 };
+
+// POST /magic-login
+export const createMagicLoginRequest = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+    const result = await userService.requestMagicLogin(email);
+
+    logger.info(`Magic login link requested for ${email}`);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// POST /magic-login/verify
+export const verifyMagicLogin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { token } = req.body;
+    if (!token) throw new ApiError(400, "Token is required");
+
+    const userContext = await userService.verifyMagicLogin(token);
+    const tokens = await userService.createTokensAndSave(userContext);
+
+    logger.info(`Magic login success for ${userContext.email}`);
+
+    return sendAuthResponse(res, tokens, userContext, "Logged in successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const checkEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const authStatus = await userService.emailCheck(email);
+
+    return res.status(200).json({
+      success: true,
+      exists: authStatus.exists,
+      hasPassword: authStatus.hasPassword,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

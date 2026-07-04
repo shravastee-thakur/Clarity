@@ -67,4 +67,23 @@ router.patch(
   userController.updatePassword,
 );
 
+// Request Magic Login Link
+router.post(
+  "/magic-login",
+  sanitizeMiddleware,
+  rateLimiterMiddleware(3, 60),
+  userController.createMagicLoginRequest,
+);
+
+// Verify Magic Login Link
+router.post(
+  "/magic-login/verify",
+  securityMiddleware,
+  sanitizeMiddleware,
+  rateLimiterMiddleware(5, 60),
+  userController.verifyMagicLogin,
+);
+
+router.post("/check-auth", userController.checkEmail);
+
 export default router;

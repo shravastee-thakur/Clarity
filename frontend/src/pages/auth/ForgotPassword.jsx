@@ -21,7 +21,7 @@ const ForgotPassword = () => {
         toast.success(res.data.message, {
           style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
         });
-        navigate(`/verifyResetOtp/${email}`);
+        navigate(`/verify-reset-otp/${email}`);
       }
     } catch (err) {
       let message = "Something went wrong. Please try again.";
