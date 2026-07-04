@@ -53,5 +53,8 @@ const projectSchema = new Schema<IProject>(
 // This index makes fetching all projects for a specific workspace extremely fast
 projectSchema.index({ workspace: 1, status: 1 });
 
-const Project = mongoose.model("Project", projectSchema);
+const Project: Model<IProject> = mongoose.model<IProject>(
+  "Project",
+  projectSchema,
+);
 export default Project;

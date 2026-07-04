@@ -52,3 +52,15 @@ export const createProject = async (
 
   return mapToProjectDto(project);
 };
+
+export const getWorkspaceProjects = async (
+  userId: string,
+  workspaceId: string,
+): Promise<ProjectDto[]> => {
+  const member = await workspaceRepo.findWorkspaceMember(workspaceId, userId);
+  if (!member)
+    throw new ApiError(403, "You are not a member of this workspace");
+
+  const projects = await projectRepo.findProjectsByWorkspace(workspaceId);
+  return projects.map(mapToProjectDto);
+};

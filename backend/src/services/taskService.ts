@@ -8,7 +8,10 @@ export interface TaskDto {
   _id: string;
   title: string;
   description?: string;
-  project: string;
+  project: {
+    _id: string;
+    name: string;
+  };
   workspace: string;
   assignee: string;
   createdBy: string;
@@ -19,11 +22,15 @@ export interface TaskDto {
 
 const mapToTaskDto = (task: TaskDocument): TaskDto => {
   const obj = task.toObject();
+  const projectData = obj.project as any;
   return {
     _id: obj._id.toString(),
     title: obj.title,
     description: obj.description,
-    project: obj.project.toString(),
+    project: {
+      _id: projectData._id.toString(),
+      name: projectData.name,
+    },
     workspace: obj.workspace.toString(),
     assignee: obj.assignee.toString(),
     createdBy: obj.createdBy.toString(),
@@ -62,4 +69,29 @@ export const assignTask = async (
   });
 
   return mapToTaskDto(task);
+};
+
+export const getProjectTasks = async (
+  userId: string,
+  workspaceId: string,
+  projectId: string,
+): Promise<TaskDto[]> => {
+  const member = await workspaceRepo.findWorkspaceMember(workspaceId, userId);
+  if (!member)
+    throw new ApiError(403, "You are not a member of this workspace");
+
+  const tasks = await taskRepo.findTasksByProject(projectId);
+  return tasks.map(mapToTaskDto);
+};
+
+export const getMyTasks = async (
+  userId: string,
+  workspaceId: string,
+): Promise<TaskDto[]> => {
+  const member = await workspaceRepo.findWorkspaceMember(workspaceId, userId);
+  if (!member)
+    throw new ApiError(403, "You are not a member of this workspace");
+
+  const tasks = await taskRepo.findTasksByAssignee(userId, workspaceId);
+  return tasks.map(mapToTaskDto);
 };

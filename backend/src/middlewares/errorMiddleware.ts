@@ -50,7 +50,7 @@ export const errorHandler = (
     logger.error("Server Error:", {
       message: err.message,
       stack: err.stack,
-      path: req.originalUrl, // Better than req.path if you use nested routers
+      path: req.originalUrl, 
       method: req.method,
     });
   } else {

@@ -29,7 +29,6 @@ export const sendAuthResponse = (
         id: user._id.toString(),
         username: user.name,
         email: user.email,
-        role: user.role,
         isVerified: user.isVerified,
         workspaceStatus: user.workspaceStatus,
         activeWorkspaceId: user.activeWorkspaceId,

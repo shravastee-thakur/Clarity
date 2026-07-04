@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
-  Building2,
   Loader2,
   CheckSquare,
   Layers,
   Users,
   ArrowRight,
+  Link2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/axiosinstance";
@@ -16,19 +16,45 @@ const WorkspaceSetup = () => {
   const navigate = useNavigate();
   const { setWorkspaceStatus, setActiveWorkspaceId } = useAuthStore();
 
-  const [workspaceName, setWorkspaceName] = useState("");
+  const [formData, setFormData] = useState({ name: "", slug: "" });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auto-generate URL-friendly slug from the name
+  const generateSlug = (text) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-") // Replace spaces with hyphens
+      .replace(/[^a-z0-9-]/g, ""); // Remove special characters
+  };
+
+  const handleNameChange = (e) => {
+    const name = e.target.value;
+    setFormData({
+      name,
+      slug: generateSlug(name), // Auto-updates slug as they type
+    });
+  };
+
+  const handleSlugChange = (e) => {
+    // Allows manual override, but enforces slug rules
+    const slug = e.target.value
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+    setFormData({ ...formData, slug });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!workspaceName.trim()) return;
+    if (!formData.name.trim() || !formData.slug.trim()) return;
 
     setIsLoading(true);
     try {
-      const res = await api.post("/api/v1/workspaces", { name: workspaceName });
+      const res = await api.post("/api/v1/workspaces", formData);
+      console.log(res);
 
-      const workspaceId = res.data.workspaceId;
-
+      const workspaceId = res.data.data._id;
       setActiveWorkspaceId(workspaceId);
       setWorkspaceStatus("active");
 
@@ -36,7 +62,7 @@ const WorkspaceSetup = () => {
         style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
       });
 
-      navigate("/");
+      navigate("/workspace");
     } catch (error) {
       const message =
         error.response?.data?.message || "Failed to create workspace.";
@@ -50,14 +76,12 @@ const WorkspaceSetup = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white">
-      {/* Left Panel: Branding & Context (The "New Territory" Vibe) */}
+      {/* Left Panel: Branding & Context */}
       <div className="bg-[#172b4d] text-white p-6 lg:p-12 relative overflow-hidden lg:w-2/5 lg:min-h-screen flex flex-col justify-between">
-        {/* Subtle background accents using strict palette */}
         <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-[#0344a6] rounded-full blur-3xl opacity-20 pointer-events-none" />
         <div className="absolute bottom-[-10%] left-[-10%] w-64 h-64 bg-[#0344a6] rounded-full blur-3xl opacity-20 pointer-events-none" />
 
         <div className="relative z-10">
-          {/* Logo */}
           <div className="flex items-center gap-2 mb-6 lg:mb-12">
             <CheckSquare className="h-7 w-7 text-white" />
             <span className="text-lg lg:text-xl font-bold tracking-tight text-white">
@@ -65,7 +89,6 @@ const WorkspaceSetup = () => {
             </span>
           </div>
 
-          {/* Headline */}
           <h1 className="text-2xl lg:text-4xl font-bold mb-2 lg:mb-4 leading-tight">
             Let's build your <br className="hidden lg:block" /> command center.
           </h1>
@@ -73,7 +96,6 @@ const WorkspaceSetup = () => {
             Your workspace is the foundation of your team's productivity.
           </p>
 
-          {/* Feature Highlights - Hidden on mobile to keep the header compact */}
           <div className="hidden lg:block space-y-6">
             <div className="flex items-start gap-4">
               <div className="p-2 bg-white/10 rounded-lg flex-shrink-0">
@@ -100,7 +122,6 @@ const WorkspaceSetup = () => {
           </div>
         </div>
 
-        {/* Footer - Hidden on mobile */}
         <div className="hidden lg:block mt-12 text-sm text-white/40">
           © 2026 Clarity. Smart. Simple. Secure.
         </div>
@@ -114,12 +135,12 @@ const WorkspaceSetup = () => {
               Create your workspace
             </h2>
             <p className="text-[#172b4d]/60 mt-2">
-              This is where your team will collaborate. You can always change
-              these settings later.
+              Set up your organization's name and unique web address.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Workspace Name */}
             <div>
               <label
                 htmlFor="workspaceName"
@@ -131,17 +152,47 @@ const WorkspaceSetup = () => {
                 id="workspaceName"
                 type="text"
                 required
-                value={workspaceName}
-                onChange={(e) => setWorkspaceName(e.target.value)}
+                value={formData.name}
+                onChange={handleNameChange}
                 placeholder="e.g. Acme Corporation"
                 className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-[#172b4d] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:border-transparent transition-shadow"
               />
             </div>
 
+            {/* Workspace Slug */}
+            <div>
+              <label
+                htmlFor="workspaceSlug"
+                className="block text-sm font-medium text-[#172b4d] mb-1.5"
+              >
+                Workspace URL
+              </label>
+              <div className="relative">
+                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <input
+                  id="workspaceSlug"
+                  type="text"
+                  required
+                  value={formData.slug}
+                  onChange={handleSlugChange}
+                  placeholder="acme-corporation"
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-lg text-[#172b4d] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:border-transparent transition-shadow font-mono text-sm"
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-[#172b4d]/50">
+                This will be used in your dashboard URL:{" "}
+                <span className="font-mono">
+                  clarity.app/{formData.slug || "your-workspace"}
+                </span>
+              </p>
+            </div>
+
             <button
               type="submit"
-              disabled={isLoading || !workspaceName.trim()}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold transition-all duration-200 bg-[#0344a6] hover:bg-[#0344a6]/90 text-white shadow-lg shadow-[#0344a6]/20 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:ring-offset-2"
+              disabled={
+                isLoading || !formData.name.trim() || !formData.slug.trim()
+              }
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold transition-all duration-200 bg-[#0344a6] hover:bg-[#0344a6]/90 text-white shadow-lg shadow-[#0344a6]/20 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:ring-offset-2 mt-8"
             >
               {isLoading ? (
                 <>

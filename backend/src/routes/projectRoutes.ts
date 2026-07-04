@@ -10,4 +10,10 @@ router.post(
   projectController.createProject,
 );
 
+router.get(
+  "/workspaces/:workspaceId/projects",
+  authenticate,
+  projectController.getWorkspaceProjects,
+);
+
 export default router;

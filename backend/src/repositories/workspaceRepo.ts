@@ -11,6 +11,18 @@ export interface CreateWorkspaceInput {
   owner: string;
 }
 
+export const findWorkspaceBySlug = async (
+  slug: string,
+): Promise<WorkspaceDocument | null> => {
+  return Workspace.findOne({ slug }).exec();
+};
+
+export const findWorkspaceByOwner = async (
+  ownerId: string,
+): Promise<WorkspaceDocument | null> => {
+  return Workspace.findOne({ owner: ownerId }).exec();
+};
+
 export const createWorkspace = async (
   data: CreateWorkspaceInput,
 ): Promise<WorkspaceDocument> => {
@@ -49,8 +61,6 @@ export const findWorkspaceMember = async (
   }).exec();
 };
 
-export const findWorkspaceByOwner = async (
-  ownerId: string,
-): Promise<WorkspaceDocument | null> => {
-  return Workspace.findOne({ owner: ownerId }).exec();
+export const findFirstMembership = async (userId: string) => {
+  return WorkspaceMember.findOne({ user: userId }).exec();
 };

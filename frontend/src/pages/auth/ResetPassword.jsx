@@ -39,7 +39,7 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      const res = await api.post("/api/v1/users/password-resets", {
+      const res = await api.patch("/api/v1/users/password-resets", {
         email,
         resetToken,
         newPassword,

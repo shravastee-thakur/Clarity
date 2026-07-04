@@ -30,3 +30,22 @@ export const createProject = async (
     next(error);
   }
 };
+
+export const getWorkspaceProjects = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const workspaceId = req.params.workspaceId as string;
+
+    const projects = await projectService.getWorkspaceProjects(
+      userId,
+      workspaceId,
+    );
+    res.status(200).json({ success: true, data: projects });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -31,3 +31,40 @@ export const createTask = async (
     next(error);
   }
 };
+
+export const getProjectTasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const workspaceId = req.params.workspaceId as string;
+    const projectId = req.params.projectId as string;
+
+    const tasks = await taskService.getProjectTasks(
+      userId,
+      workspaceId,
+      projectId,
+    );
+    res.status(200).json({ success: true, data: tasks });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyTasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const workspaceId = req.params.workspaceId as string;
+
+    const tasks = await taskService.getMyTasks(userId, workspaceId);
+    res.status(200).json({ success: true, data: tasks });
+  } catch (error) {
+    next(error);
+  }
+};

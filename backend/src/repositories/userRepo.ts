@@ -3,9 +3,7 @@ import { HydratedDocument } from "mongoose";
 
 export type UserDocument = HydratedDocument<IUser, IUserMethods>;
 
-export type CreateUserInput = Pick<IUser, "name" | "email" | "password"> & {
-  role?: IUser["role"];
-};
+export type CreateUserInput = Pick<IUser, "name" | "email" | "password"> 
 
 export const findByEmail = async (
   email: string,

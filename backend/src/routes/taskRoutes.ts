@@ -10,4 +10,15 @@ router.post(
   taskController.createTask,
 );
 
+router.get(
+  "/workspaces/:workspaceId/projects/:projectId/tasks",
+  authenticate,
+  taskController.getProjectTasks,
+);
+router.get(
+  "/workspaces/:workspaceId/tasks/me",
+  authenticate,
+  taskController.getMyTasks,
+);
+
 export default router;

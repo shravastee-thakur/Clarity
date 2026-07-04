@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Plus,
   Filter,
@@ -10,62 +10,135 @@ import {
 } from "lucide-react";
 import api from "../../utils/axiosinstance";
 import toast from "react-hot-toast";
+import { useAuthStore } from "../../store/authStore";
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Fix authentication bug",
-      project: "Backend API",
-      assignee: "Alex",
-      priority: "High",
-      status: "In Progress",
-      dueDate: "2026-07-05",
-    },
-    {
-      id: 2,
-      title: "Design onboarding flow",
-      project: "Mobile App",
-      assignee: "Sarah",
-      priority: "Medium",
-      status: "To Do",
-      dueDate: "2026-07-10",
-    },
-    {
-      id: 3,
-      title: "Update database schema",
-      project: "Backend API",
-      assignee: "John",
-      priority: "Low",
-      status: "Done",
-      dueDate: "2026-07-02",
-    },
-    {
-      id: 4,
-      title: "Write API documentation",
-      project: "Backend API",
-      assignee: "Alex",
-      priority: "Medium",
-      status: "Blocked",
-      dueDate: "2026-07-08",
-    },
-  ]);
+  const { activeWorkspaceId, userInfo } = useAuthStore();
+
+  const [projects, setProjects] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [selectedProjectId, setSelectedProjectId] = useState("all");
 
   const [filters, setFilters] = useState({ status: "all", priority: "all" });
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
-    project: "",
-    priority: "Medium",
+    description: "",
+    projectId: "",
+    assigneeId: "",
+    priority: "medium",
     dueDate: "",
   });
+
+  // 1. Fetch projects
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (!activeWorkspaceId) return;
+      try {
+        const res = await api.get(
+          `/api/v1/workspaces/${activeWorkspaceId}/projects`,
+        );
+
+        if (res.data.success) {
+          setProjects(res.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch projects", error);
+      }
+    };
+    fetchProjects();
+  }, [activeWorkspaceId]);
+
+  // 2. Fetch members for the assignee dropdown
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!activeWorkspaceId) return;
+      try {
+        const res = await api.get(
+          `/api/v1/workspaces/${activeWorkspaceId}/members`,
+        );
+        if (res.data.success) {
+          setMembers(res.data.data);
+        }
+      } catch (error) {
+        // Fallback: If members endpoint doesn't exist yet, default to the current user from Zustand
+        if (userInfo) {
+          setMembers([
+            { _id: userInfo._id || userInfo.id, name: userInfo.name || "You" },
+          ]);
+        }
+      }
+    };
+    fetchMembers();
+  }, [activeWorkspaceId, userInfo]);
+
+  // Set default projectId and assigneeId when data loads
+  useEffect(() => {
+    if (projects.length > 0 && !formData.projectId) {
+      setFormData((prev) => ({ ...prev, projectId: projects[0]._id }));
+    }
+  }, [projects]);
+
+  useEffect(() => {
+    if (members.length > 0 && !formData.assigneeId) {
+      setFormData((prev) => ({ ...prev, assigneeId: members[0]._id }));
+    }
+  }, [members]);
+
+  // 3. Fetch tasks
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (!activeWorkspaceId) {
+        setTasks([]);
+        setIsLoadingTasks(false);
+        return;
+      }
+
+      setIsLoadingTasks(true);
+      try {
+        let projectIds = projects.map((p) => p._id);
+        if (selectedProjectId !== "all") {
+          projectIds = [selectedProjectId];
+        }
+
+        if (projectIds.length === 0) {
+          setTasks([]);
+          setIsLoadingTasks(false);
+          return;
+        }
+
+        const promises = projectIds.map((id) =>
+          api.get(
+            `/api/v1/workspaces/${activeWorkspaceId}/projects/${id}/tasks`,
+          ),
+        );
+
+        const results = await Promise.all(promises);
+        const allTasks = results.flatMap((res) => res.data.data || []);
+        setTasks(allTasks);
+      } catch (error) {
+        toast.error("Failed to load tasks");
+      } finally {
+        setIsLoadingTasks(false);
+      }
+    };
+
+    fetchTasks();
+  }, [activeWorkspaceId, projects, selectedProjectId]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       if (filters.status !== "all" && task.status !== filters.status)
         return false;
-      if (filters.priority !== "all" && task.priority !== filters.priority)
+      // Compare lowercase to match backend schema
+      if (
+        filters.priority !== "all" &&
+        task.priority?.toLowerCase() !== filters.priority
+      )
         return false;
       return true;
     });
@@ -81,28 +154,35 @@ const Tasks = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.projectId || !formData.assigneeId) {
+      toast.error("Please select a project and assignee");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
-      // Replace with actual API call: await api.post('/api/v1/tasks', formData);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Payload now perfectly matches your required JSON schema
+      const res = await api.post(
+        `/api/v1/workspaces/${activeWorkspaceId}/tasks`,
+        formData,
+      );
 
-      const newTask = {
-        id: Date.now(),
-        title: formData.title,
-        project: formData.project || "Unassigned",
-        assignee: "You",
-        priority: formData.priority,
-        status: "To Do",
-        dueDate: formData.dueDate || "TBD",
-      };
-
-      setTasks([newTask, ...tasks]);
-      setShowModal(false);
-      setFormData({ title: "", project: "", priority: "Medium", dueDate: "" });
-      toast.success("Task created successfully");
+      if (res.data.success) {
+        setTasks([res.data.data, ...tasks]);
+        setShowModal(false);
+        setFormData({
+          title: "",
+          description: "",
+          projectId: projects[0]?._id || "",
+          assigneeId: members[0]?._id || userInfo?._id || "",
+          priority: "medium",
+          dueDate: "",
+        });
+        toast.success("Task created successfully");
+      }
     } catch (error) {
-      toast.error("Failed to create task");
+      const message = error.response?.data?.message || "Failed to create task";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,14 +195,20 @@ const Tasks = () => {
   };
 
   const getPriorityClasses = (priority) => {
-    if (priority === "High") return "text-[#172b4d]";
-    if (priority === "Medium") return "text-[#172b4d]/60";
+    const p = priority?.toLowerCase();
+    if (p === "high") return "text-[#172b4d]";
+    if (p === "medium") return "text-[#172b4d]/60";
     return "text-[#172b4d]/40";
+  };
+
+  const formatPriority = (priority) => {
+    if (!priority) return "Medium";
+    return priority.charAt(0).toUpperCase() + priority.slice(1);
   };
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#172b4d]">Tasks</h1>
           <p className="text-[#172b4d]/60 mt-1">
@@ -131,17 +217,32 @@ const Tasks = () => {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#0344a6] text-white text-sm font-semibold rounded-lg hover:bg-[#0344a6]/90 transition-colors shadow-sm"
+          disabled={projects.length === 0}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#0344a6] text-white text-sm font-semibold rounded-lg hover:bg-[#0344a6]/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="h-4 w-4" /> New Task
         </button>
       </div>
 
       {/* Functional Filters */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center gap-4">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center gap-4 mb-6">
         <div className="flex items-center gap-2 text-sm font-medium text-[#172b4d]">
           <Filter className="h-4 w-4" /> Filters:
         </div>
+
+        <select
+          value={selectedProjectId}
+          onChange={(e) => setSelectedProjectId(e.target.value)}
+          className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-[#0344a6]"
+        >
+          <option value="all">All Projects</option>
+          {projects.map((p) => (
+            <option key={p._id} value={p._id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+
         <select
           name="status"
           value={filters.status}
@@ -154,6 +255,7 @@ const Tasks = () => {
           <option value="Blocked">Blocked</option>
           <option value="Done">Done</option>
         </select>
+
         <select
           name="priority"
           value={filters.priority}
@@ -161,13 +263,19 @@ const Tasks = () => {
           className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-[#0344a6]"
         >
           <option value="all">All Priorities</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
         </select>
-        {(filters.status !== "all" || filters.priority !== "all") && (
+
+        {(filters.status !== "all" ||
+          filters.priority !== "all" ||
+          selectedProjectId !== "all") && (
           <button
-            onClick={() => setFilters({ status: "all", priority: "all" })}
+            onClick={() => {
+              setFilters({ status: "all", priority: "all" });
+              setSelectedProjectId("all");
+            }}
             className="text-sm text-[#0344a6] hover:underline font-medium"
           >
             Clear filters
@@ -177,75 +285,85 @@ const Tasks = () => {
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 text-[#172b4d]/60 text-xs uppercase tracking-wider">
-              <tr>
-                <th className="px-6 py-3">Task</th>
-                <th className="px-6 py-3 hidden md:table-cell">Project</th>
-                <th className="px-6 py-3 hidden lg:table-cell">Assignee</th>
-                <th className="px-6 py-3 hidden sm:table-cell">Priority</th>
-                <th className="px-6 py-3 hidden md:table-cell">Due Date</th>
-                <th className="px-6 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {filteredTasks.length > 0 ? (
-                filteredTasks.map((task) => (
-                  <tr
-                    key={task.id}
-                    className="hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <CheckSquare className="w-4 h-4 text-[#172b4d]/40 flex-shrink-0" />
-                        <span className="text-sm font-medium text-[#172b4d]">
-                          {task.title}
+          {isLoadingTasks ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="w-8 h-8 animate-spin text-[#0344a6]" />
+            </div>
+          ) : (
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 text-[#172b4d]/60 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="px-6 py-3">Task</th>
+                  <th className="px-6 py-3 hidden md:table-cell">Project</th>
+                  <th className="px-6 py-3 hidden lg:table-cell">Assignee</th>
+                  <th className="px-6 py-3 hidden sm:table-cell">Priority</th>
+                  <th className="px-6 py-3 hidden md:table-cell">Due Date</th>
+                  <th className="px-6 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {filteredTasks.length > 0 ? (
+                  filteredTasks.map((task) => (
+                    <tr
+                      key={task._id}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <CheckSquare className="w-4 h-4 text-[#172b4d]/40 flex-shrink-0" />
+                          <span className="text-sm font-medium text-[#172b4d]">
+                            {task.title}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#172b4d]/60 hidden md:table-cell">
+                        {task.project?.name || task.project}
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
+                        <div className="w-6 h-6 rounded-full bg-[#0344a6]/10 text-[#0344a6] text-xs font-bold flex items-center justify-center">
+                          {task.assignee?.name?.charAt(0) || "U"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 hidden sm:table-cell">
+                        <div
+                          className={`flex items-center gap-1.5 text-sm font-medium ${getPriorityClasses(task.priority)}`}
+                        >
+                          <Flag className="w-3 h-3" />
+                          {formatPriority(task.priority)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 hidden md:table-cell">
+                        <div className="flex items-center gap-1.5 text-sm text-[#172b4d]/60">
+                          <Calendar className="w-3 h-3" />
+                          {task.dueDate
+                            ? new Date(task.dueDate).toLocaleDateString()
+                            : "TBD"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`text-xs font-semibold px-2 py-1 rounded ${getStatusClasses(task.status)}`}
+                        >
+                          {task.status}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-[#172b4d]/60 hidden md:table-cell">
-                      {task.project}
-                    </td>
-                    <td className="px-6 py-4 hidden lg:table-cell">
-                      <div className="w-6 h-6 rounded-full bg-[#0344a6]/10 text-[#0344a6] text-xs font-bold flex items-center justify-center">
-                        {task.assignee.charAt(0)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 hidden sm:table-cell">
-                      <div
-                        className={`flex items-center gap-1.5 text-sm font-medium ${getPriorityClasses(task.priority)}`}
-                      >
-                        <Flag className="w-3 h-3" />
-                        {task.priority}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 hidden md:table-cell">
-                      <div className="flex items-center gap-1.5 text-sm text-[#172b4d]/60">
-                        <Calendar className="w-3 h-3" />
-                        {task.dueDate}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`text-xs font-semibold px-2 py-1 rounded ${getStatusClasses(task.status)}`}
-                      >
-                        {task.status}
-                      </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="px-6 py-12 text-center text-sm text-[#172b4d]/60"
+                    >
+                      {projects.length === 0
+                        ? "Create a project first to start adding tasks."
+                        : "No tasks match your current filters."}
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="6"
-                    className="px-6 py-12 text-center text-sm text-[#172b4d]/60"
-                  >
-                    No tasks match your current filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
@@ -273,9 +391,69 @@ const Tasks = () => {
                   value={formData.title}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-[#172b4d] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:border-transparent"
-                  placeholder="e.g. Fix login redirect issue"
+                  placeholder="e.g. Design new homepage hero section"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#172b4d] mb-1.5">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  rows="3"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-[#172b4d] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:border-transparent resize-none"
+                  placeholder="Add more details about this task..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#172b4d] mb-1.5">
+                    Project
+                  </label>
+                  <select
+                    name="projectId"
+                    required
+                    value={formData.projectId}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:border-transparent"
+                  >
+                    <option value="" disabled>
+                      Select a project
+                    </option>
+                    {projects.map((p) => (
+                      <option key={p._id} value={p._id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#172b4d] mb-1.5">
+                    Assignee
+                  </label>
+                  <select
+                    name="assigneeId"
+                    required
+                    value={formData.assigneeId}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:border-transparent"
+                  >
+                    <option value="" disabled>
+                      Select a member
+                    </option>
+                    {members.map((m) => (
+                      <option key={m._id} value={m._id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-[#172b4d] mb-1.5">
@@ -287,9 +465,9 @@ const Tasks = () => {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-[#0344a6] focus:border-transparent"
                   >
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
                   </select>
                 </div>
                 <div>
@@ -305,6 +483,7 @@ const Tasks = () => {
                   />
                 </div>
               </div>
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"

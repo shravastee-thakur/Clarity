@@ -7,8 +7,15 @@ import { useNavigate, Link } from "react-router-dom";
 
 const VerifyOtp = () => {
   const navigate = useNavigate();
-  const { setIsVerified, setUserInfo, setRole, email, setAccessToken } =
-    useAuthStore();
+  const {
+    setIsVerified,
+    setUserInfo,
+    setRole,
+    email,
+    setAccessToken,
+    setWorkspaceStatus,
+    setActiveWorkspaceId,
+  } = useAuthStore();
   const [otp, setOtp] = useState("");
   const [expiryTime, setExpiryTime] = useState(300); // 5 minutes
   const [isExpiring, setIsExpiring] = useState(false);

@@ -26,7 +26,7 @@ export interface UserDto {
 }
 
 export interface UserContext extends UserDto {
-  workspaceStatus: "setup" | "invited" | "pending" | "active";
+  workspaceStatus: "setup" | "invited" | "active";
   activeWorkspaceId?: string;
 }
 
@@ -61,13 +61,13 @@ export const createUser = async (userData: RegisterInput): Promise<UserDto> => {
 // -----x-----(workspace logic)------
 
 export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
-  // 1. Check if the user already owns an active workspace
-  const ownedWorkspace = await workspaceRepo.findWorkspaceByOwner(user._id);
-  if (ownedWorkspace) {
+  // 1. Check if the user is already a member of any workspace
+  const membership = await workspaceRepo.findFirstMembership(user._id);
+  if (membership) {
     return {
       ...user,
       workspaceStatus: "active",
-      activeWorkspaceId: ownedWorkspace._id.toString(),
+      activeWorkspaceId: membership.workspace.toString(),
     };
   }
 
@@ -82,7 +82,7 @@ export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
   }
 
   // 3. If they own nothing and have no invites, send them to setup
-  return { ...user, workspaceStatus: "pending" };
+  return { ...user, workspaceStatus: "setup" };
 };
 
 // -----x-----(login)------

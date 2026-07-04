@@ -29,6 +29,20 @@ const mapToWorkspaceDto = (workspace: WorkspaceDocument): WorkspaceDto => {
 export const setUpWorkspace = async (
   data: CreateWorkspaceInput,
 ): Promise<WorkspaceDto> => {
+  // 1. Enforce the business rule: A user can only own one workspace
+  const existingWorkspace = await workspaceRepo.findWorkspaceByOwner(
+    data.owner,
+  );
+  if (existingWorkspace) {
+    throw new ApiError(409, "You already own a workspace");
+  }
+
+  // 2. Check if the slug is already taken by another company
+  const slugExists = await workspaceRepo.findWorkspaceBySlug(data.slug);
+  if (slugExists) {
+    throw new ApiError(409, "This workspace URL is already taken");
+  }
+
   const workspace = await workspaceRepo.createWorkspace(data);
   await workspaceRepo.addWorkspaceMember({
     workspace: workspace._id,

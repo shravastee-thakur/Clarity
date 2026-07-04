@@ -36,5 +36,8 @@ const workSpaceSchema = new Schema<IWorkspace>(
   { timestamps: true },
 );
 
-const Workspace = mongoose.model("Workspace", workSpaceSchema);
+const Workspace: Model<IWorkspace> = mongoose.model<IWorkspace>(
+  "Workspace",
+  workSpaceSchema,
+);
 export default Workspace;

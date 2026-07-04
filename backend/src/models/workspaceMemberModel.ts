@@ -33,8 +33,6 @@ const workspaceMemberSchema = new Schema<IWorkspaceMember>({
 
 workspaceMemberSchema.index({ workspace: 1, user: 1 }, { unique: true });
 
-const WorkspaceMember = mongoose.model<IWorkspaceMember>(
-  "WorkspaceMember",
-  workspaceMemberSchema,
-);
+const WorkspaceMember: Model<IWorkspaceMember> =
+  mongoose.model<IWorkspaceMember>("WorkspaceMember", workspaceMemberSchema);
 export default WorkspaceMember;

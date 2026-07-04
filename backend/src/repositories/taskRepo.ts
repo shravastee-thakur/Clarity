@@ -20,6 +20,15 @@ export const createTask = async (
   return Task.create(data);
 };
 
+export const findTasksByProject = async (
+  projectId: string,
+): Promise<TaskDocument[]> => {
+  return Task.find({ project: projectId })
+    .populate({ path: "project", select: "name" })
+    .sort({ dueDate: 1 })
+    .exec();
+};
+
 export const findTasksByAssignee = async (
   userId: string,
   workspaceId: string,
