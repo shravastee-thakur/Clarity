@@ -4,7 +4,8 @@ import bcrypt from "bcrypt";
 export interface IUser {
   name: string;
   email: string;
-  password: string;
+  password?: string;
+  authProvider: "local" | "magic" | "google"; // Tracks how they log in
   refreshToken: string;
   isVerified: boolean;
   createdAt?: Date;
@@ -33,9 +34,13 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     password: {
       type: String,
-      required: true,
       select: false,
       trim: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "magic", "google"],
+      default: "local",
     },
     refreshToken: {
       type: String,
@@ -50,11 +55,12 @@ const userSchema = new Schema<IUser, UserModel>(
 );
 
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+  if (!this.isModified("password") || !this.password) return;
   this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.comparePassword = async function (plainPassword: string) {
+  if (!this.password) return false; // Prevent errors if password is null
   return bcrypt.compare(plainPassword, this.password);
 };
 

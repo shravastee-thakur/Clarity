@@ -33,7 +33,7 @@ export interface UserContext extends UserDto {
 
 export interface RegisterInput extends CreateUserInput {}
 
-const mapToUserDto = (user: UserDocument): UserDto => {
+export const mapToUserDto = (user: UserDocument): UserDto => {
   const obj = user.toObject();
 
   return {
@@ -84,6 +84,11 @@ export const loginVerifyCredentials = async (
   const user = await userRepo.findByEmail(userData.email);
   if (!user) {
     throw new ApiError(404, "User does not exist");
+  }
+
+  // Block passwordless users from using the standard login form
+  if (user.authProvider !== "local" || !user.password) {
+    throw new ApiError(400, "Please use the secure email link to log in");
   }
 
   const match = await user.comparePassword(userData.password);

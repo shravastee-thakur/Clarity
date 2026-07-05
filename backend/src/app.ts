@@ -7,9 +7,12 @@ import { errorHandler } from "./middlewares/errorMiddleware.js";
 import { sanitizeMiddleware } from "./middlewares/sanitize.js";
 
 import userRoutes from "./routes/userRoutes.js";
+
 import workspaceRoutes from "./routes/workspaceRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
+
+import inviteRoutes from "./routes/inviteRoutes.js";
 
 const app = express();
 
@@ -44,6 +47,9 @@ app.use("/api/v1/", projectRoutes);
 
 app.use("/api/v1/", taskRoutes);
 // http://localhost:8080/api/v1/workspaces/:workspaceId/tasks
+
+app.use("/api/v1/", inviteRoutes);
+// http://localhost:8080/api/v1/workspaces/:workspaceId/invites
 
 app.use(errorHandler);
 export default app;
