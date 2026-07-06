@@ -13,35 +13,54 @@ const AcceptInvite = () => {
     setUserInfo,
     setWorkspaceStatus,
     setActiveWorkspaceId,
+    setWorkspaceRole,
   } = useAuthStore();
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // const token = new URLSearchParams(location.search).get("token");
-    // if (!token) {
-    //   navigate("/login");
-    //   return;
-    // }
+    const token = new URLSearchParams(location.search).get("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     const acceptInvite = async () => {
       try {
         const res = await api.post("/api/v1/invites/accept", { token });
-        const { accessToken, user } = res.data;
-        const { workspaceStatus, activeWorkspaceId, role } = user;
+        console.log(res);
+        if (res.data.success) {
+          const { accessToken, user } = res.data;
+          const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } = user;
 
-        setAccessToken(accessToken);
-        setUserInfo(user);
-        setWorkspaceStatus(workspaceStatus);
-        setActiveWorkspaceId(activeWorkspaceId);
+          setAccessToken(accessToken);
+          setUserInfo(user);
+          setWorkspaceStatus(workspaceStatus);
+          setActiveWorkspaceId(activeWorkspaceId);
+          setWorkspaceRole(activeWorkspaceRole);
 
-        toast.success("Welcome to the workspace!");
-        navigate("/workspace");
+          toast.success(res.data.message, {
+            style: {
+              borderRadius: "10px",
+              background: "#25671E",
+              color: "#fff",
+            },
+          });
+          navigate("/workspace");
+        }
       } catch (err) {
-        setError("This invitation link is invalid or has expired.");
+        let message = "Something went wrong. Please try again.";
+        if (err.response?.data?.message) {
+          message = err.response.data.message;
+        } else if (err) {
+          message = err.message;
+        }
+        toast.error(message, {
+          style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+        });
       }
     };
 
-    // acceptInvite();
+    acceptInvite();
   }, [location.search, navigate]);
 
   if (error) {

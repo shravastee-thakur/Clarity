@@ -18,15 +18,7 @@ const WorkspaceGuard = () => {
     return <Navigate to="/workspace/setup" replace />;
   }
 
-  // 3. Force invited employees to the invite page
-  if (
-    workspaceStatus === "invited" &&
-    !location.pathname.startsWith("/workspace/invite")
-  ) {
-    return <Navigate to="/workspace/invite" replace />;
-  }
-
-  // 4. Prevent active users from accessing onboarding pages
+  // 3. Prevent active users from accessing onboarding pages
   if (
     workspaceStatus === "active" &&
     (location.pathname.includes("/workspace/setup") ||

@@ -34,7 +34,17 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isPublicAuthRoute =
+      originalRequest.url.includes("/invites/accept") ||
+      originalRequest.url.includes("/magic-login") ||
+      originalRequest.url.includes("/sessions") ||
+      originalRequest.url.includes("/otp-requests");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isPublicAuthRoute
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

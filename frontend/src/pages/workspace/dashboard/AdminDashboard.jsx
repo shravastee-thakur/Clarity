@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-[#172b4d]">Macro Dashboard</h1>
+        <h1 className="text-2xl font-bold text-[#172b4d]">Admin Dashboard</h1>
         <p className="text-[#172b4d]/60 mt-1">
           Workspace health and team execution metrics.
         </p>

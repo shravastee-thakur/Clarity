@@ -12,6 +12,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import api from "../utils/axiosinstance"; // Adjust path if your utils folder is structured differently
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -41,8 +42,6 @@ const Navbar = () => {
         toast.success(res.data.message, {
           style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
         });
-        clearAuth();
-        navigate("/");
       }
     } catch (err) {
       let message = "Something went wrong. Please try again.";
@@ -55,6 +54,9 @@ const Navbar = () => {
         style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
       });
     }
+
+    clearAuth();
+    navigate("/");
   };
 
   const handleMenuClick = (path) => {
@@ -98,6 +100,9 @@ const Navbar = () => {
                     aria-haspopup="true"
                     aria-expanded={isDropdownOpen}
                   >
+                    <div className="w-8 h-8 rounded-full bg-[#0344a6] flex items-center justify-center text-white text-sm font-bold">
+                      {userInfo?.username?.charAt(0) || "U"}
+                    </div>
                     <span className="text-sm font-medium text-[#172b4d]">
                       {userInfo?.username || "User"}
                     </span>

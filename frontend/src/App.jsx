@@ -19,7 +19,6 @@ import WorkspaceGuard from "./components/WorkspaceGuard";
 
 // Onboarding (No Sidebar)
 import WorkspaceSetup from "./pages/workspace/WorkspaceSetup";
-import InviteAcceptance from "./pages/workspace/InviteAcceptance";
 
 // Application (With Sidebar)
 import Dashboard from "./pages/workspace/dashboard/Dashboard";
@@ -54,19 +53,17 @@ const App = () => {
         <Route path="/accept-invite" element={<AcceptInvite />} />
 
         {/* --- PROTECTED ROUTES --- */}
-        {/* <Route element={<WorkspaceGuard />}> */}
-        {/* Onboarding (Full screen, no sidebar) */}
-        <Route path="/workspace/setup" element={<WorkspaceSetup />} />
-        <Route path="/workspace/invite" element={<InviteAcceptance />} />
+        <Route element={<WorkspaceGuard />}>
+          <Route path="/workspace/setup" element={<WorkspaceSetup />} />
 
-        {/* Active Workspace (Sidebar layout) */}
-        <Route path="/workspace" element={<WorkspaceLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="tasks" element={<Tasks />} />
-          <Route path="members" element={<Members />} />
+          {/* Active Workspace (Sidebar layout) */}
+          <Route path="/workspace" element={<WorkspaceLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="members" element={<Members />} />
+          </Route>
         </Route>
-        {/* </Route> */}
       </Routes>
     </>
   );

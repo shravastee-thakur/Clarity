@@ -8,6 +8,8 @@ const Members = () => {
   const { activeWorkspaceId } = useAuthStore();
   const [members, setMembers] = useState([]);
   const [invites, setInvites] = useState([]);
+  console.log(invites);
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
@@ -118,9 +120,6 @@ const Members = () => {
                   <div>
                     <p className="text-sm font-medium text-[#172b4d]">
                       {invite.email}
-                    </p>
-                    <p className="text-xs text-[#172b4d]/60">
-                      Invited {new Date(invite.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>

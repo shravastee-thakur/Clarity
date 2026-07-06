@@ -3,9 +3,9 @@ import AdminDashboard from "./AdminDashboard";
 import EmployeeDashboard from "./EmployeeDashboard";
 
 const Dashboard = () => {
-  const { role } = useAuthStore();
+  const { activeWorkspaceRole } = useAuthStore();
 
-  if (role === "admin") {
+  if (activeWorkspaceRole === "admin") {
     return <AdminDashboard />;
   }
 

@@ -14,8 +14,12 @@ import toast from "react-hot-toast";
 
 const WorkspaceSetup = () => {
   const navigate = useNavigate();
-  const { setWorkspaceStatus, setActiveWorkspaceId, setWorkspaceRole } =
-    useAuthStore();
+  const {
+    setWorkspaceStatus,
+    setActiveWorkspaceId,
+    setWorkspaceRole,
+    setWorkspaceName,
+  } = useAuthStore();
 
   const [formData, setFormData] = useState({ name: "", slug: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +63,7 @@ const WorkspaceSetup = () => {
       setActiveWorkspaceId(workspaceId);
       setWorkspaceStatus("active");
       setWorkspaceRole("admin");
+      setWorkspaceName(res.data.data.name);
 
       toast.success("Workspace created successfully!", {
         style: { borderRadius: "10px", background: "#25671E", color: "#fff" },

@@ -20,7 +20,8 @@ const Layout = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { userInfo, clearAuth } = useAuthStore();
+  const { userInfo, workspaceName, clearAuth } = useAuthStore();
+  console.log(userInfo);
 
   const navItems = [
     { path: "/workspace", icon: LayoutDashboard, label: "Dashboard" },
@@ -80,13 +81,6 @@ const Layout = () => {
             );
           })}
         </nav>
-
-        <div className="p-4 border-t border-slate-200">
-          <button className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-[#172b4d]/70 hover:bg-slate-50 hover:text-[#172b4d] transition-colors">
-            <Settings className="h-5 w-5" />
-            Settings
-          </button>
-        </div>
       </aside>
 
       {isSidebarOpen && (
@@ -109,7 +103,7 @@ const Layout = () => {
 
           <div className="hidden lg:block">
             <h1 className="text-lg font-semibold text-[#172b4d]">
-              Acme Corp Workspace
+              {workspaceName}
             </h1>
           </div>
 
@@ -119,10 +113,10 @@ const Layout = () => {
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
             >
               <div className="w-8 h-8 rounded-full bg-[#0344a6] flex items-center justify-center text-white text-sm font-bold">
-                {userInfo?.name?.charAt(0) || "U"}
+                {userInfo?.username?.charAt(0) || "U"}
               </div>
               <span className="hidden sm:block text-sm font-medium text-[#172b4d]">
-                {userInfo?.name || "User"}
+                {userInfo?.username || "User"}
               </span>
               <ChevronDown className="h-4 w-4 text-[#172b4d]/60" />
             </button>

@@ -34,11 +34,12 @@ app.use(sanitizeMiddleware);
 
 // Routes
 
-// Auth
 app.use("/api/v1/users", userRoutes);
 // http://localhost:8080/api/v1/users/
 
-// Phase 2
+app.use("/api/v1/", inviteRoutes);
+// http://localhost:8080/api/v1/workspaces/:workspaceId/invites
+
 app.use("/api/v1/workspaces", workspaceRoutes);
 // http://localhost:8080/api/v1/workspaces/
 
@@ -47,9 +48,6 @@ app.use("/api/v1/", projectRoutes);
 
 app.use("/api/v1/", taskRoutes);
 // http://localhost:8080/api/v1/workspaces/:workspaceId/tasks
-
-app.use("/api/v1/", inviteRoutes);
-// http://localhost:8080/api/v1/workspaces/:workspaceId/invites
 
 app.use(errorHandler);
 export default app;
