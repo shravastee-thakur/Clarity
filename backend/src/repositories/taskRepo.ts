@@ -1,5 +1,5 @@
 import Task, { ITask } from "../models/taskModel.js";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 
 export type TaskDocument = HydratedDocument<ITask>;
 export type CreateTaskInput = Pick<
@@ -17,7 +17,13 @@ export type CreateTaskInput = Pick<
 export const createTask = async (
   data: CreateTaskInput,
 ): Promise<TaskDocument> => {
-  return Task.create(data);
+  const task = await Task.create(data);
+
+  const populatedTask = await Task.findById(task._id)
+    .populate({ path: "project", select: "name" })
+    .exec();
+
+  return populatedTask as TaskDocument;
 };
 
 export const findTasksByProject = async (
@@ -39,5 +45,73 @@ export const findTasksByAssignee = async (
     status: { $ne: "done" },
   })
     .sort({ dueDate: 1 })
+    .exec();
+};
+
+// Admin Macro Metrics Pipeline
+export const getWorkspaceStats = async (workspaceId: string) => {
+  const workspaceObjectId = new Types.ObjectId(workspaceId);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const stats = await Task.aggregate([
+    { $match: { workspace: workspaceObjectId } },
+    {
+      $facet: {
+        openTasks: [
+          { $match: { status: { $ne: "done" } } },
+          { $count: "count" },
+        ],
+        completedToday: [
+          {
+            $match: {
+              status: "done",
+              updatedAt: { $gte: today },
+            },
+          },
+          { $count: "count" },
+        ],
+        bottlenecks: [
+          { $match: { status: { $ne: "done" } } },
+          {
+            $group: {
+              _id: "$assignee",
+              highPriorityCount: {
+                $sum: { $cond: [{ $eq: ["$priority", "high"] }, 1, 0] },
+              },
+              totalCount: { $sum: 1 },
+            },
+          },
+          { $sort: { highPriorityCount: -1 } },
+          { $limit: 1 },
+        ],
+      },
+    },
+  ]);
+  return stats[0];
+};
+
+// Employee Micro Execution Query
+export const findFocusTasks = async (userId: string, workspaceId: string) => {
+  return Task.find({
+    assignee: new Types.ObjectId(userId),
+    workspace: new Types.ObjectId(workspaceId),
+    status: { $in: ["todo", "in_progress"] },
+  })
+    .populate({ path: "project", select: "name" })
+    .sort({ priority: -1, dueDate: 1 })
+    .limit(3)
+    .exec();
+};
+
+// Blocker Action
+export const markTaskAsBlocked = async (taskId: string, userId: string) => {
+  return Task.findOneAndUpdate(
+    { _id: new Types.ObjectId(taskId), assignee: new Types.ObjectId(userId) },
+    { status: "blocked" },
+    { new: true },
+  )
+    .populate({ path: "project", select: "name" })
     .exec();
 };

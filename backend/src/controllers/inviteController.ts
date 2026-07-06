@@ -49,3 +49,45 @@ export const acceptInvite = async (
     next(error);
   }
 };
+
+export const revokeInvite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const adminId = req.user?.id as string;
+    const workspaceId = req.params.workspaceId as string;
+    const inviteId = req.params.inviteId as string;
+
+    const result = await inviteService.revokeWorkspaceInvite(
+      adminId,
+      workspaceId,
+      inviteId,
+    );
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPendingInvites = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const adminId = req.user?.id as string;
+    const workspaceId = req.params.workspaceId as string;
+
+    const invites = await inviteService.getPendingWorkspaceInvites(
+      adminId,
+      workspaceId,
+    );
+
+    res.status(200).json({ success: true, data: invites });
+  } catch (error) {
+    next(error);
+  }
+};

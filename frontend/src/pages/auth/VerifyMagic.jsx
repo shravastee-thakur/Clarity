@@ -12,9 +12,9 @@ const VerifyMagic = () => {
     setAccessToken,
     setIsVerified,
     setUserInfo,
-    setRole,
     setWorkspaceStatus,
     setActiveWorkspaceId,
+    setWorkspaceRole,
   } = useAuthStore();
   const [error, setError] = useState("");
 
@@ -31,14 +31,15 @@ const VerifyMagic = () => {
           token,
         });
         const { accessToken, user } = res.data;
-        const { workspaceStatus, activeWorkspaceId } = user;
+        const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } =
+          user;
 
         setAccessToken(accessToken);
         setIsVerified(user.isVerified);
         setUserInfo(user);
-        setRole(user.role);
         setWorkspaceStatus(workspaceStatus);
         setActiveWorkspaceId(activeWorkspaceId);
+        setWorkspaceRole(activeWorkspaceRole);
 
         toast.success("Logged in successfully!");
 

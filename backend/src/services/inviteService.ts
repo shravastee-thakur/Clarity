@@ -1,4 +1,3 @@
-// services/inviteService.ts
 import * as inviteRepo from "../repositories/inviteRepo.js";
 import { InviteDocument } from "../repositories/inviteRepo.js";
 import * as userRepo from "../repositories/userRepo.js";
@@ -6,7 +5,6 @@ import * as workspaceRepo from "../repositories/workspaceRepo.js";
 import { generateMagicToken, verifyMagicToken } from "../utils/jwt.js";
 import * as emailService from "./emailService.js";
 import { ApiError } from "../utils/apiError.js";
-import crypto from "crypto";
 import {
   buildUserContext,
   mapToUserDto,
@@ -90,11 +88,7 @@ export const sendWorkspaceInvite = async (
   const workspace = await workspaceRepo.findWorkspaceById(workspaceId);
   const workspaceName = workspace ? workspace.name : "our platform";
 
-  await emailService.sendWorkspaceInviteEmail(
-    targetEmail,
-    token,
-    workspaceName,
-  );
+  emailService.sendWorkspaceInviteEmail(targetEmail, token, workspaceName);
 
   return { success: true, message: "Invitation sent successfully" };
 };
@@ -130,7 +124,7 @@ export const acceptWorkspaceInvite = async (token: string) => {
       name: decoded.email.split("@")[0], // Use email prefix as temporary name
       email: decoded.email,
       authProvider: "magic",
-      isVerified: true, 
+      isVerified: true,
     });
   }
 
@@ -160,4 +154,57 @@ export const acceptWorkspaceInvite = async (token: string) => {
   const tokens = await createTokensAndSave(userDto);
 
   return { tokens, userContext };
+};
+
+// Flow 3: Delete invite
+export const revokeWorkspaceInvite = async (
+  adminId: string,
+  workspaceId: string,
+  inviteId: string,
+) => {
+  // 1. Verify the user is an admin of this workspace
+  const member = await workspaceRepo.findWorkspaceMember(workspaceId, adminId);
+  if (!member || member.role !== "admin") {
+    throw new ApiError(403, "Only workspace admins can revoke invites");
+  }
+
+  // 2. Fetch the invite to verify it exists and belongs to this workspace
+  const invite = await inviteRepo.findInviteById(inviteId);
+  if (!invite) {
+    throw new ApiError(404, "Invite not found");
+  }
+
+  // 3. Strict security check: Ensure the invite belongs to the requested workspace
+  if (invite.workspaceId.toString() !== workspaceId) {
+    throw new ApiError(403, "You do not have permission to revoke this invite");
+  }
+
+  // 4. Ensure the invite is actually pending
+  if (invite.status !== "pending") {
+    throw new ApiError(
+      400,
+      "Cannot revoke an invite that has already been processed",
+    );
+  }
+
+  // 5. Delete the invite
+  const deleted = await inviteRepo.deleteInviteById(inviteId);
+  if (!deleted) {
+    throw new ApiError(500, "Failed to revoke invite");
+  }
+
+  return { success: true, message: "Invite revoked successfully" };
+};
+
+export const getPendingWorkspaceInvites = async (
+  adminId: string,
+  workspaceId: string,
+): Promise<InviteDto[]> => {
+  const member = await workspaceRepo.findWorkspaceMember(workspaceId, adminId);
+  if (!member || member.role !== "admin") {
+    throw new ApiError(403, "Only workspace admins can view pending invites");
+  }
+
+  const invites = await inviteRepo.findPendingInvitesByWorkspace(workspaceId);
+  return invites.map(mapToInviteDto);
 };

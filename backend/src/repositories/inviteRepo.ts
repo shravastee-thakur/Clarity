@@ -1,5 +1,5 @@
 import Invite, { IInvite } from "../models/inviteModel.js";
-import { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 
 export type InviteDocument = HydratedDocument<IInvite>;
 
@@ -41,4 +41,19 @@ export const updateInviteStatus = async (
     { status },
     { returnDocument: "after" },
   ).exec();
+};
+
+export const deleteInviteById = async (inviteId: string): Promise<boolean> => {
+  const result = await Invite.findByIdAndDelete(inviteId);
+  return result !== null;
+};
+
+export const findPendingInvitesByWorkspace = async (workspaceId: string) => {
+  return Invite.find({
+    workspaceId,
+    status: "pending",
+    expiresAt: { $gt: new Date() },
+  })
+    .sort({ createdAt: -1 })
+    .exec();
 };

@@ -14,6 +14,15 @@ export interface WorkspaceDto {
   memberCount: number;
 }
 
+export interface MemberDto {
+  _id: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  joinedAt: Date;
+}
+
 const mapToWorkspaceDto = (workspace: WorkspaceDocument): WorkspaceDto => {
   const obj = workspace.toObject();
 
@@ -64,4 +73,28 @@ export const getWorkspace = async (
   if (!workspace) throw new ApiError(404, "Workspace not found");
 
   return mapToWorkspaceDto(workspace);
+};
+
+export const getWorkspaceMembers = async (
+  workspaceId: string,
+  userId: string,
+): Promise<MemberDto[]> => {
+  const member = await workspaceRepo.findWorkspaceMember(workspaceId, userId);
+  if (!member) {
+    throw new ApiError(403, "You are not a member of this workspace");
+  }
+
+  const members = await workspaceRepo.findMembersByWorkspace(workspaceId);
+
+  return members.map((m) => {
+    const user = m.user as any;
+    return {
+      _id: m._id.toString(),
+      userId: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: m.role,
+      joinedAt: m.joinedAt,
+    };
+  });
 };

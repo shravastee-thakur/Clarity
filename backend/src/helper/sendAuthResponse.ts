@@ -32,6 +32,7 @@ export const sendAuthResponse = (
         isVerified: user.isVerified,
         workspaceStatus: user.workspaceStatus,
         activeWorkspaceId: user.activeWorkspaceId,
+        activeWorkspaceRole: user.activeWorkspaceRole,
       },
     });
 };

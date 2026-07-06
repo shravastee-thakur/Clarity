@@ -1,6 +1,7 @@
 import mongoose, { Schema, Model } from "mongoose";
 
 export interface IWorkspaceMember {
+  userId: string;
   workspace: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   role: "admin" | "member";

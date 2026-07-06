@@ -22,11 +22,12 @@ import WorkspaceSetup from "./pages/workspace/WorkspaceSetup";
 import InviteAcceptance from "./pages/workspace/InviteAcceptance";
 
 // Application (With Sidebar)
-import Dashboard from "./pages/workspace/Dashboard";
+import Dashboard from "./pages/workspace/dashboard/Dashboard";
 import Projects from "./pages/workspace/Projects";
 import Tasks from "./pages/workspace/Tasks";
 import VerifyMagic from "./pages/auth/VerifyMagic";
 import AcceptInvite from "./pages/workspace/AcceptInvite";
+import Members from "./pages/workspace/Members";
 
 const App = () => {
   return (
@@ -63,6 +64,7 @@ const App = () => {
           <Route index element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
           <Route path="tasks" element={<Tasks />} />
+          <Route path="members" element={<Members />} />
         </Route>
         {/* </Route> */}
       </Routes>

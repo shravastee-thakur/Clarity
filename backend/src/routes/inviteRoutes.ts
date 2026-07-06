@@ -23,4 +23,17 @@ router.post(
   inviteController.acceptInvite,
 );
 
+// Admin deletes an invite
+router.delete(
+  "/workspaces/:workspaceId/invites/:inviteId",
+  authenticate,
+  inviteController.revokeInvite,
+);
+
+router.get(
+  "/workspaces/:workspaceId/invites",
+  authenticate,
+  inviteController.getPendingInvites,
+);
+
 export default router;

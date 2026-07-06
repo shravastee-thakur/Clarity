@@ -10,32 +10,27 @@ const AcceptInvite = () => {
   const location = useLocation();
   const {
     setAccessToken,
-    setIsVerified,
     setUserInfo,
-    setRole,
     setWorkspaceStatus,
     setActiveWorkspaceId,
   } = useAuthStore();
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = new URLSearchParams(location.search).get("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+    // const token = new URLSearchParams(location.search).get("token");
+    // if (!token) {
+    //   navigate("/login");
+    //   return;
+    // }
 
     const acceptInvite = async () => {
       try {
-        // You must build this endpoint in Phase 3
-        const res = await api.post("/api/v1/users/invites/accept", { token });
+        const res = await api.post("/api/v1/invites/accept", { token });
         const { accessToken, user } = res.data;
-        const { workspaceStatus, activeWorkspaceId } = user;
+        const { workspaceStatus, activeWorkspaceId, role } = user;
 
         setAccessToken(accessToken);
-        setIsVerified(user.isVerified);
         setUserInfo(user);
-        setRole(user.role);
         setWorkspaceStatus(workspaceStatus);
         setActiveWorkspaceId(activeWorkspaceId);
 
@@ -46,7 +41,7 @@ const AcceptInvite = () => {
       }
     };
 
-    acceptInvite();
+    // acceptInvite();
   }, [location.search, navigate]);
 
   if (error) {
@@ -80,9 +75,7 @@ const AcceptInvite = () => {
         </span>
       </div>
       <Loader2 className="h-10 w-10 animate-spin text-[#0344a6] mb-4" />
-      <p className="text-[#172b4d]/60 font-medium">
-        Setting up your account...
-      </p>
+      <p className="text-[#172b4d]/60 font-medium">Joining your workspace...</p>
     </div>
   );
 };

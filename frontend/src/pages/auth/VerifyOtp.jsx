@@ -10,11 +10,11 @@ const VerifyOtp = () => {
   const {
     setIsVerified,
     setUserInfo,
-    setRole,
     email,
     setAccessToken,
     setWorkspaceStatus,
     setActiveWorkspaceId,
+    setWorkspaceRole,
   } = useAuthStore();
   const [otp, setOtp] = useState("");
   const [expiryTime, setExpiryTime] = useState(300); // 5 minutes
@@ -47,14 +47,15 @@ const VerifyOtp = () => {
       if (res.data.success) {
         if (res.data.success) {
           const { accessToken, user } = res.data;
-          const { workspaceStatus, activeWorkspaceId } = user;
+          const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } =
+            user;
 
           setAccessToken(accessToken);
           setIsVerified(user.isVerified);
           setUserInfo(user);
-          setRole(user.role);
           setWorkspaceStatus(workspaceStatus);
           setActiveWorkspaceId(activeWorkspaceId);
+          setWorkspaceRole(activeWorkspaceRole);
 
           toast.success(res.data.message, {
             style: {

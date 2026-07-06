@@ -50,3 +50,23 @@ export const getWorkspace = async (
     next(error);
   }
 };
+
+export const getMembers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const workspaceId = req.params.workspaceId as string;
+
+    const members = await workspaceService.getWorkspaceMembers(
+      workspaceId,
+      userId,
+    );
+
+    res.status(200).json({ success: true, data: members });
+  } catch (error) {
+    next(error);
+  }
+};

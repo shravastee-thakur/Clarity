@@ -3,22 +3,31 @@ import * as taskController from "../controllers/taskController.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
+router.use(authenticate);
 
-router.post(
-  "/workspaces/:workspaceId/tasks",
-  authenticate,
-  taskController.createTask,
+// Admin Macro Metrics
+router.get("/workspaces/:workspaceId/stats", taskController.getAdminStats);
+
+// Employee Micro Execution
+router.get(
+  "/workspaces/:workspaceId/tasks/focus",
+  taskController.getFocusTasks,
 );
 
+// General Task Retrieval
+router.get("/workspaces/:workspaceId/tasks/me", taskController.getMyTasks);
 router.get(
   "/workspaces/:workspaceId/projects/:projectId/tasks",
-  authenticate,
   taskController.getProjectTasks,
 );
-router.get(
-  "/workspaces/:workspaceId/tasks/me",
-  authenticate,
-  taskController.getMyTasks,
+
+// Task Creation
+router.post("/workspaces/:workspaceId/tasks", taskController.createTask);
+
+// Employee Blocker Action
+router.patch(
+  "/workspaces/:workspaceId/tasks/:taskId/block",
+  taskController.reportBlocker,
 );
 
 export default router;

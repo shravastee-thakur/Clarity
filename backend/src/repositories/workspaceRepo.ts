@@ -5,6 +5,7 @@ import WorkspaceMember, {
 import { HydratedDocument } from "mongoose";
 
 export type WorkspaceDocument = HydratedDocument<IWorkspace>;
+
 export interface CreateWorkspaceInput {
   name: string;
   slug: string;
@@ -63,4 +64,10 @@ export const findWorkspaceMember = async (
 
 export const findFirstMembership = async (userId: string) => {
   return WorkspaceMember.findOne({ user: userId }).exec();
+};
+
+export const findMembersByWorkspace = async (workspaceId: string) => {
+  return WorkspaceMember.find({ workspace: workspaceId })
+    .populate("user", "name email")
+    .exec();
 };

@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import * as taskService from "../services/taskService.js";
-import { createTaskSchema } from "../validators/taskValidator.js";
+import {
+  createTaskSchema,
+  projectParamSchema,
+  taskParamsSchema,
+  workspaceParamsSchema,
+} from "../validators/taskValidator.js";
 import logger from "../utils/logger.js";
 
 export const createTask = async (
@@ -11,7 +16,7 @@ export const createTask = async (
   try {
     const validatedData = createTaskSchema.parse(req.body);
     const userId = req.user?.id as string;
-    const workspaceId = req.params.workspaceId as string;
+    const { workspaceId } = workspaceParamsSchema.parse(req.params);
 
     const task = await taskService.assignTask(
       userId,
@@ -39,8 +44,8 @@ export const getProjectTasks = async (
 ) => {
   try {
     const userId = req.user?.id as string;
-    const workspaceId = req.params.workspaceId as string;
-    const projectId = req.params.projectId as string;
+    const { workspaceId } = workspaceParamsSchema.parse(req.params);
+    const { projectId } = projectParamSchema.parse(req.params);
 
     const tasks = await taskService.getProjectTasks(
       userId,
@@ -60,10 +65,65 @@ export const getMyTasks = async (
 ) => {
   try {
     const userId = req.user?.id as string;
-    const workspaceId = req.params.workspaceId as string;
+    const { workspaceId } = workspaceParamsSchema.parse(req.params);
 
     const tasks = await taskService.getMyTasks(userId, workspaceId);
     res.status(200).json({ success: true, data: tasks });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { workspaceId } = workspaceParamsSchema.parse(req.params);
+    const userId = req.user?.id as string;
+
+    const stats = await taskService.getAdminDashboardStats(userId, workspaceId);
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFocusTasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { workspaceId } = workspaceParamsSchema.parse(req.params);
+    const userId = req.user?.id as string;
+
+    const tasks = await taskService.getEmployeeFocusTasks(userId, workspaceId);
+    res.status(200).json({ success: true, data: tasks });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const reportBlocker = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { workspaceId, taskId } = taskParamsSchema.parse(req.params);
+    const userId = req.user?.id as string;
+
+    const task = await taskService.reportTaskBlocker(
+      userId,
+      workspaceId,
+      taskId,
+    );
+
+    logger.info("Task blocker reported", { userId, workspaceId, taskId });
+
+    res.status(200).json({ success: true, data: task });
   } catch (error) {
     next(error);
   }

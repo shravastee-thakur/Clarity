@@ -59,9 +59,20 @@ api.interceptors.response.use(
         );
 
         const newAccessToken = res.data.accessToken;
+        const freshUser = res.data.user;
 
         useAuthStore.getState().setAccessToken(newAccessToken);
         useAuthStore.getState().setIsVerified(true);
+
+        if (freshUser) {
+          useAuthStore.getState().setWorkspaceStatus(freshUser.workspaceStatus);
+          useAuthStore
+            .getState()
+            .setActiveWorkspaceId(freshUser.activeWorkspaceId);
+          useAuthStore
+            .getState()
+            .setWorkspaceRole(freshUser.activeWorkspaceRole);
+        }
 
         processQueue(null, newAccessToken);
 

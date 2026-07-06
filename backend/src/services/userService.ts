@@ -29,6 +29,7 @@ export interface UserDto {
 export interface UserContext extends UserDto {
   workspaceStatus: "setup" | "active";
   activeWorkspaceId?: string;
+  activeWorkspaceRole?: "admin" | "member";
 }
 
 export interface RegisterInput extends CreateUserInput {}
@@ -69,6 +70,7 @@ export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
       ...user,
       workspaceStatus: "active",
       activeWorkspaceId: membership.workspace.toString(),
+      activeWorkspaceRole: membership.role,
     };
   }
 
