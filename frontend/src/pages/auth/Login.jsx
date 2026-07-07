@@ -43,6 +43,7 @@ const Login = () => {
         // Path B: Send Magic Link
         await api.post("/api/v1/users/magic-login", { email });
         setStep("magicSent");
+        setEmail("");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong.");

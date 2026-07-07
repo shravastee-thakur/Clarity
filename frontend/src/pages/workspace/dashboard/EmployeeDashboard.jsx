@@ -5,12 +5,14 @@ import { useAuthStore } from "../../../store/authStore";
 import toast from "react-hot-toast";
 
 const EmployeeDashboard = () => {
-  const { activeWorkspaceId } = useAuthStore();
+  const { activeWorkspaceId, isSessionRestored } = useAuthStore();
   const [focusTasks, setFocusTasks] = useState([]);
   const [upcomingTasks, setUpcomingTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!isSessionRestored || !activeWorkspaceId) return;
+
     const fetchData = async () => {
       if (!activeWorkspaceId) return;
       try {
@@ -40,7 +42,7 @@ const EmployeeDashboard = () => {
       }
     };
     fetchData();
-  }, [activeWorkspaceId]);
+  }, [activeWorkspaceId, isSessionRestored]);
 
   const handleReportBlocker = async (taskId) => {
     const originalTasks = [...focusTasks];

@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
 
 const Projects = () => {
-  const { activeWorkspaceId } = useAuthStore();
+  const { activeWorkspaceId, isSessionRestored } = useAuthStore();
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,6 +27,8 @@ const Projects = () => {
 
   // Fetch projects on mount
   useEffect(() => {
+    if (!isSessionRestored || !activeWorkspaceId) return;
+
     const fetchProjects = async () => {
       if (!activeWorkspaceId) return;
       setIsLoading(true);
@@ -45,7 +47,7 @@ const Projects = () => {
     };
 
     fetchProjects();
-  }, [activeWorkspaceId]);
+  }, [activeWorkspaceId, isSessionRestored]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -8,6 +8,7 @@ export const useAuthStore = create(
       userInfo: null,
       accessToken: null,
       isVerified: false,
+      isSessionRestored: false, // <--- Tracks if the guard has finished initializing
       activeWorkspaceRole: null,
       workspaceStatus: null,
       activeWorkspaceId: null,
@@ -17,6 +18,7 @@ export const useAuthStore = create(
       setUserInfo: (info) => set({ userInfo: info }),
       setAccessToken: (token) => set({ accessToken: token }),
       setIsVerified: (status) => set({ isVerified: status }),
+      setIsSessionRestored: (status) => set({ isSessionRestored: status }),
       setWorkspaceRole: (role) => set({ activeWorkspaceRole: role }),
       setWorkspaceStatus: (status) => set({ workspaceStatus: status }),
       setActiveWorkspaceId: (id) => set({ activeWorkspaceId: id }),
@@ -28,6 +30,7 @@ export const useAuthStore = create(
           userInfo: null,
           accessToken: null,
           isVerified: false,
+          isSessionRestored: false,
           activeWorkspaceRole: null,
           workspaceStatus: null,
           activeWorkspaceId: null,

@@ -21,7 +21,6 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userInfo, workspaceName, clearAuth } = useAuthStore();
-  console.log(userInfo);
 
   const navItems = [
     { path: "/workspace", icon: LayoutDashboard, label: "Dashboard" },
@@ -113,7 +112,7 @@ const Layout = () => {
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
             >
               <div className="w-8 h-8 rounded-full bg-[#0344a6] flex items-center justify-center text-white text-sm font-bold">
-                {userInfo?.username?.charAt(0) || "U"}
+                {userInfo?.username?.charAt(0).toUpperCase() || "U"}
               </div>
               <span className="hidden sm:block text-sm font-medium text-[#172b4d]">
                 {userInfo?.username || "User"}

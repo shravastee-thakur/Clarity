@@ -33,12 +33,21 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const { accessToken, isVerified } = useAuthStore.getState();
 
     const isPublicAuthRoute =
       originalRequest.url.includes("/invites/accept") ||
       originalRequest.url.includes("/magic-login") ||
       originalRequest.url.includes("/sessions") ||
       originalRequest.url.includes("/otp-requests");
+    originalRequest.url.includes("/tokens");
+
+    // Prevent race condition with WorkspaceGuard
+    // If accessToken is null but isVerified is true, the WorkspaceGuard
+    // is currently handling the silent refresh. Do NOT trigger a second refresh.
+    if (!accessToken && isVerified) {
+      return Promise.reject(error);
+    }
 
     if (
       error.response?.status === 401 &&

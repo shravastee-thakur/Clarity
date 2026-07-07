@@ -10,12 +10,14 @@ import api from "../../../utils/axiosinstance";
 import { useAuthStore } from "../../../store/authStore";
 
 const AdminDashboard = () => {
-  const { activeWorkspaceId } = useAuthStore();
+  const { activeWorkspaceId, isSessionRestored } = useAuthStore();
   const [stats, setStats] = useState(null);
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!isSessionRestored || !activeWorkspaceId) return;
+
     const fetchData = async () => {
       if (!activeWorkspaceId) return;
       try {
@@ -32,7 +34,7 @@ const AdminDashboard = () => {
       }
     };
     fetchData();
-  }, [activeWorkspaceId]);
+  }, [activeWorkspaceId, isSessionRestored]);
 
   if (isLoading) return <AdminSkeleton />;
 

@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
 
 const Tasks = () => {
-  const { activeWorkspaceId, userInfo } = useAuthStore();
+  const { activeWorkspaceId, userInfo, isSessionRestored } = useAuthStore();
 
   const [projects, setProjects] = useState([]);
   const [members, setMembers] = useState([]);
@@ -36,6 +36,8 @@ const Tasks = () => {
 
   // 1. Fetch projects
   useEffect(() => {
+    if (!isSessionRestored || !activeWorkspaceId) return;
+
     const fetchProjects = async () => {
       if (!activeWorkspaceId) return;
       try {
@@ -51,30 +53,29 @@ const Tasks = () => {
       }
     };
     fetchProjects();
-  }, [activeWorkspaceId]);
+  }, [activeWorkspaceId, isSessionRestored]);
 
   // 2. Fetch members for the assignee dropdown
   useEffect(() => {
+    if (!isSessionRestored || !activeWorkspaceId) return;
+
     const fetchMembers = async () => {
       if (!activeWorkspaceId) return;
       try {
         const res = await api.get(
           `/api/v1/workspaces/${activeWorkspaceId}/members`,
         );
+        console.log("Member", res);
+
         if (res.data.success) {
           setMembers(res.data.data);
         }
       } catch (error) {
-        // Fallback: If members endpoint doesn't exist yet, default to the current user from Zustand
-        if (userInfo) {
-          setMembers([
-            { _id: userInfo._id || userInfo.id, name: userInfo.name || "You" },
-          ]);
-        }
+        toast.error("Failed to load members");
       }
     };
     fetchMembers();
-  }, [activeWorkspaceId, userInfo]);
+  }, [activeWorkspaceId, userInfo, isSessionRestored]);
 
   // Set default projectId and assigneeId when data loads
   useEffect(() => {
@@ -85,12 +86,14 @@ const Tasks = () => {
 
   useEffect(() => {
     if (members.length > 0 && !formData.assigneeId) {
-      setFormData((prev) => ({ ...prev, assigneeId: members[0]._id }));
+      setFormData((prev) => ({ ...prev, assigneeId: members[0].userId }));
     }
   }, [members]);
 
   // 3. Fetch tasks
   useEffect(() => {
+    if (!isSessionRestored || !activeWorkspaceId) return;
+
     const fetchTasks = async () => {
       if (!activeWorkspaceId) {
         setTasks([]);
@@ -128,7 +131,7 @@ const Tasks = () => {
     };
 
     fetchTasks();
-  }, [activeWorkspaceId, projects, selectedProjectId]);
+  }, [activeWorkspaceId, projects, selectedProjectId, isSessionRestored]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -150,6 +153,7 @@ const Tasks = () => {
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    console.log(formData);
   };
 
   const handleSubmit = async (e) => {
@@ -174,7 +178,7 @@ const Tasks = () => {
           title: "",
           description: "",
           projectId: projects[0]?._id || "",
-          assigneeId: members[0]?._id || userInfo?._id || "",
+          assigneeId: members[0]?.userId,
           priority: "medium",
           dueDate: "",
         });
@@ -446,7 +450,7 @@ const Tasks = () => {
                       Select a member
                     </option>
                     {members.map((m) => (
-                      <option key={m._id} value={m._id}>
+                      <option key={m.userId} value={m.userId}>
                         {m.name}
                       </option>
                     ))}

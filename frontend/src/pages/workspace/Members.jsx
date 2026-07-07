@@ -5,10 +5,9 @@ import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
 
 const Members = () => {
-  const { activeWorkspaceId } = useAuthStore();
+  const { activeWorkspaceId, isSessionRestored } = useAuthStore();
   const [members, setMembers] = useState([]);
   const [invites, setInvites] = useState([]);
-  console.log(invites);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,6 +16,8 @@ const Members = () => {
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
+    if (!isSessionRestored || !activeWorkspaceId) return;
+
     const fetchData = async () => {
       if (!activeWorkspaceId) return;
       setIsLoading(true);
@@ -25,7 +26,6 @@ const Members = () => {
           api.get(`/api/v1/workspaces/${activeWorkspaceId}/members`),
           api.get(`/api/v1/workspaces/${activeWorkspaceId}/invites`),
         ]);
-        console.log(membersRes);
 
         setMembers(membersRes.data.data || []);
         setInvites(invitesRes.data.data || []);
@@ -36,7 +36,7 @@ const Members = () => {
       }
     };
     fetchData();
-  }, [activeWorkspaceId]);
+  }, [activeWorkspaceId, isSessionRestored]);
 
   const handleSendInvite = async (e) => {
     e.preventDefault();

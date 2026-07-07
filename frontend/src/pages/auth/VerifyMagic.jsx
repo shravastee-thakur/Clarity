@@ -41,7 +41,9 @@ const VerifyMagic = () => {
         setActiveWorkspaceId(activeWorkspaceId);
         setWorkspaceRole(activeWorkspaceRole);
 
-        toast.success("Logged in successfully!");
+        toast.success(res.data.message, {
+          style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+        });
 
         if (workspaceStatus === "setup") navigate("/workspace/setup");
         else if (workspaceStatus === "invited") navigate("/workspace/invite");

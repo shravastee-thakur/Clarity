@@ -49,7 +49,7 @@ const App = () => {
         <Route path="/verify-reset-otp/:email" element={<VerifyResetOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        <Route path="/magic-link" element={<VerifyMagic />} />
+        <Route path="/verify-magic" element={<VerifyMagic />} />
         <Route path="/accept-invite" element={<AcceptInvite />} />
 
         {/* --- PROTECTED ROUTES --- */}
