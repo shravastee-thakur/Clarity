@@ -1,9 +1,10 @@
 # Clarity
 A modern, multi-tenant project management platform built with the MERN stack. Clarity delivers distinct, role-based experiences for administrators and employees, featuring passwordless authentication, frictionless team onboarding, and intelligent task management.
 
-<img width="1280" height="586" alt="Clarity1" src="https://github.com/user-attachments/assets/9fdd7cd7-d019-4a07-83bc-6325bfa480f8" />
-<img width="1280" height="585" alt="Clarity2" src="https://github.com/user-attachments/assets/1cd3e985-7946-4fbc-9f6a-5e3e3b622ede" />
-<img width="1280" height="587" alt="Clarity3" src="https://github.com/user-attachments/assets/6e66524a-699f-4cc6-a0be-794ab520b817" />
+<img width="1255" height="675" alt="Clarity1" src="https://github.com/user-attachments/assets/f7d63384-7723-4b98-a699-bc1cee18bfb4" />
+<img width="1261" height="673" alt="Clarity2" src="https://github.com/user-attachments/assets/07d72cc6-b020-4d06-9130-5268faa21969" />
+<img width="1277" height="677" alt="Clarity3" src="https://github.com/user-attachments/assets/81baa7ec-ec99-4c3c-abad-89d937cb552b" />
+
 
 
 ## Overview
