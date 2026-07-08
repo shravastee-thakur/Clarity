@@ -85,7 +85,7 @@ const Login = () => {
               Clarity
             </span>
           </div>
-          <h1 className="text-xl font-semibold text-[#172b4d]">Welcome back</h1>
+          <h1 className="text-xl font-semibold text-[#468432]">Welcome back</h1>
           <p className="text-sm text-[#172b4d]/60 mt-1">
             Sign in to your Clarity workspace
           </p>

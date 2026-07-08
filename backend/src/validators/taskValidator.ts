@@ -25,3 +25,19 @@ export const taskParamsSchema = z.object({
   workspaceId: mongoIdSchema,
   taskId: mongoIdSchema,
 });
+
+export const updateTaskSchema = z
+  .object({
+    title: z.string().min(3).max(100).optional(),
+    description: z.string().max(1000).optional(),
+    status: z.enum(["todo", "in_progress", "blocked", "done"]).optional(),
+    priority: z.enum(["low", "medium", "high"]).optional(),
+    dueDate: z.coerce.date().optional(),
+    assigneeId: z
+      .string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "You must provide at least one field to update",
+  });

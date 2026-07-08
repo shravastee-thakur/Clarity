@@ -8,8 +8,6 @@ export interface IProject {
   status: "active" | "archived";
   startDate: Date;
   endDate: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 const projectSchema = new Schema<IProject>(

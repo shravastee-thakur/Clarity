@@ -21,9 +21,26 @@ export const createTask = async (
 
   const populatedTask = await Task.findById(task._id)
     .populate({ path: "project", select: "name" })
+    .populate({ path: "assignee", select: "name email" })
     .exec();
 
   return populatedTask as TaskDocument;
+};
+
+export const findTaskById = async (
+  taskId: string,
+): Promise<TaskDocument | null> => {
+  return Task.findById(new Types.ObjectId(taskId)).exec();
+};
+
+export const updateTaskById = async (
+  taskId: string,
+  data: Partial<ITask>,
+): Promise<TaskDocument | null> => {
+  return Task.findByIdAndUpdate(new Types.ObjectId(taskId), data, { new: true })
+    .populate({ path: "project", select: "name" })
+    .populate({ path: "assignee", select: "name email" })
+    .exec();
 };
 
 export const findTasksByProject = async (
@@ -31,6 +48,7 @@ export const findTasksByProject = async (
 ): Promise<TaskDocument[]> => {
   return Task.find({ project: projectId })
     .populate({ path: "project", select: "name" })
+    .populate({ path: "assignee", select: "name email" })
     .sort({ dueDate: 1 })
     .exec();
 };
@@ -44,6 +62,8 @@ export const findTasksByAssignee = async (
     workspace: workspaceId,
     status: { $ne: "done" },
   })
+    .populate({ path: "project", select: "name" })
+    .populate({ path: "assignee", select: "name email" })
     .sort({ dueDate: 1 })
     .exec();
 };
@@ -85,6 +105,20 @@ export const getWorkspaceStats = async (workspaceId: string) => {
           },
           { $sort: { highPriorityCount: -1 } },
           { $limit: 1 },
+          {
+            $lookup: {
+              from: "users",
+              localField: "_id",
+              foreignField: "_id",
+              as: "userDetails",
+            },
+          },
+          {
+            $unwind: {
+              path: "$userDetails",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
         ],
       },
     },
@@ -100,6 +134,7 @@ export const findFocusTasks = async (userId: string, workspaceId: string) => {
     status: { $in: ["todo", "in_progress"] },
   })
     .populate({ path: "project", select: "name" })
+    .populate({ path: "assignee", select: "name email" })
     .sort({ priority: -1, dueDate: 1 })
     .limit(3)
     .exec();
@@ -112,6 +147,7 @@ export const markTaskAsBlocked = async (taskId: string, userId: string) => {
     { status: "blocked" },
     { new: true },
   )
+    .populate({ path: "assignee", select: "name email" })
     .populate({ path: "project", select: "name" })
     .exec();
 };

@@ -1,6 +1,6 @@
 import * as projectRepo from "../repositories/projectRepo.js";
 import * as workspaceRepo from "../repositories/workspaceRepo.js";
-import { ProjectDocument } from "../repositories/projectRepo.js";
+import { ProjectWithStats } from "../repositories/projectRepo.js";
 import { ApiError } from "../utils/apiError.js";
 import mongoose from "mongoose";
 import { CreateProjectInput } from "../validators/projectValidator.js";
@@ -14,19 +14,22 @@ export interface ProjectDto {
   status: string;
   startDate: Date;
   endDate: Date;
+  totalTasks: number;
+  completedTasks: number;
 }
 
-const mapToProjectDto = (project: ProjectDocument): ProjectDto => {
-  const obj = project.toObject();
+const mapToProjectDto = (project: ProjectWithStats): ProjectDto => {
   return {
-    _id: obj._id.toString(),
-    name: obj.name,
-    description: obj.description,
-    workspace: obj.workspace.toString(),
-    createdBy: obj.createdBy.toString(),
-    status: obj.status,
-    startDate: obj.startDate,
-    endDate: obj.endDate,
+    _id: project._id.toString(),
+    name: project.name,
+    description: project.description,
+    workspace: project.workspace.toString(),
+    createdBy: project.createdBy.toString(),
+    status: project.status,
+    startDate: project.startDate,
+    endDate: project.endDate,
+    totalTasks: project.totalTasks,
+    completedTasks: project.completedTasks,
   };
 };
 
@@ -50,7 +53,19 @@ export const createProject = async (
     createdBy: new mongoose.Types.ObjectId(userId),
   });
 
-  return mapToProjectDto(project);
+  const obj = project.toObject();
+  return {
+    _id: obj._id.toString(),
+    name: obj.name,
+    description: obj.description,
+    workspace: obj.workspace.toString(),
+    createdBy: obj.createdBy.toString(),
+    status: obj.status,
+    startDate: obj.startDate,
+    endDate: obj.endDate,
+    totalTasks: 0,
+    completedTasks: 0,
+  };
 };
 
 export const getWorkspaceProjects = async (
@@ -61,6 +76,7 @@ export const getWorkspaceProjects = async (
   if (!member)
     throw new ApiError(403, "You are not a member of this workspace");
 
-  const projects = await projectRepo.findProjectsByWorkspace(workspaceId);
+  const projects =
+    await projectRepo.findProjectsByWorkspaceWithStats(workspaceId);
   return projects.map(mapToProjectDto);
 };

@@ -71,7 +71,7 @@ const Signup = () => {
               Clarity
             </span>
           </div>
-          <h1 className="text-xl font-semibold text-[#760031]">
+          <h1 className="text-xl font-semibold text-[#468432]">
             Create your account
           </h1>
         </div>

@@ -5,7 +5,6 @@ import {
   FolderKanban,
   CheckSquare,
   Users,
-  Settings,
   Menu,
   X,
   ChevronDown,
@@ -20,32 +19,72 @@ const Layout = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { userInfo, workspaceName, clearAuth } = useAuthStore();
+  const { userInfo, workspaceName, clearAuth, activeWorkspaceRole } =
+    useAuthStore();
 
-  const navItems = [
-    { path: "/workspace", icon: LayoutDashboard, label: "Dashboard" },
-    { path: "/workspace/projects", icon: FolderKanban, label: "Projects" },
-    { path: "/workspace/tasks", icon: CheckSquare, label: "Tasks" },
-    { path: "/workspace/members", icon: Users, label: "Members" },
+  const isAdmin = activeWorkspaceRole === "admin";
+
+  // Define all possible links with an adminOnly flag
+  const allNavItems = [
+    {
+      path: "/workspace",
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      adminOnly: false,
+    },
+    {
+      path: "/workspace/projects",
+      icon: FolderKanban,
+      label: "Projects",
+      adminOnly: true,
+    },
+    {
+      path: "/workspace/tasks",
+      icon: CheckSquare,
+      label: "Tasks",
+      adminOnly: false,
+    },
+    {
+      path: "/workspace/members",
+      icon: Users,
+      label: "Members",
+      adminOnly: true,
+    },
   ];
 
+  // Filter out admin-only links if the user is not an admin
+  const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
+
   const handleLogout = async () => {
-    const res = await api.delete("/api/v1/users/sessions");
-    if (res.data.success) {
-      toast.success(res.data.message, {
+    try {
+      const res = await api.delete("/api/v1/users/sessions");
+      if (res.data.success) {
+        toast.success(res.data.message, {
+          style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+        });
+      }
+    } catch (err) {
+      let message = "Something went wrong. Please try again.";
+      if (err.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err) {
+        message = err.message;
+      }
+      toast.error(message, {
         style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
       });
-
-      clearAuth();
-      navigate("/login");
     }
+    clearAuth();
+    navigate("/login");
   };
 
   return (
     <div className="min-h-screen bg-slate-200 flex">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col`}
       >
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200">
           <Link to={"/"} className="flex items-center gap-2">
@@ -71,7 +110,8 @@ const Layout = () => {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-[#0344a6]/10 text-[#0344a6]"
-                    : "text-[#172b4d]/70 hover:bg-blue-100 hover:text-[#172b4d]"
+                    : "text-[#172b4d]/70 hover:bg-blue-100 hover:text-[#172b4d]" -
+                      100
                 }`}
               >
                 <item.icon className="h-5 w-5" />
@@ -81,14 +121,12 @@ const Layout = () => {
           })}
         </nav>
       </aside>
-
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/20 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-
       {/* Main Content */}
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
         {/* Topbar */}
@@ -102,7 +140,7 @@ const Layout = () => {
 
           <div className="hidden lg:block">
             <h1 className="text-lg font-semibold text-[#172b4d]">
-              {workspaceName}
+              {workspaceName || "Workspace"}
             </h1>
           </div>
 

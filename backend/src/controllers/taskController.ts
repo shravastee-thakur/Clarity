@@ -4,6 +4,7 @@ import {
   createTaskSchema,
   projectParamSchema,
   taskParamsSchema,
+  updateTaskSchema,
   workspaceParamsSchema,
 } from "../validators/taskValidator.js";
 import logger from "../utils/logger.js";
@@ -31,7 +32,13 @@ export const createTask = async (
       taskId: task._id,
     });
 
-    res.status(201).json({ success: true, data: task });
+    res
+      .status(201)
+      .json({
+        success: true,
+        data: task,
+        message: "Task assigned successfully",
+      });
   } catch (error) {
     next(error);
   }
@@ -124,6 +131,33 @@ export const reportBlocker = async (
     logger.info("Task blocker reported", { userId, workspaceId, taskId });
 
     res.status(200).json({ success: true, data: task });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateTask = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { workspaceId, taskId } = taskParamsSchema.parse(req.params);
+    const validatedData = updateTaskSchema.parse(req.body);
+    const userId = req.user?.id as string;
+
+    const task = await taskService.updateTask(
+      userId,
+      workspaceId,
+      taskId,
+      validatedData,
+    );
+
+    logger.info("Task updated successfully", { userId, taskId, workspaceId });
+
+    res
+      .status(200)
+      .json({ success: true, data: task, message: "Task status updated" });
   } catch (error) {
     next(error);
   }

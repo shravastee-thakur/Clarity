@@ -36,6 +36,8 @@ const Projects = () => {
         const res = await api.get(
           `/api/v1/workspaces/${activeWorkspaceId}/projects`,
         );
+        console.log(res);
+
         if (res.data.success) {
           setProjects(res.data.data);
         }
@@ -137,9 +139,6 @@ const Projects = () => {
               <h3 className="text-lg font-semibold text-[#172b4d] mb-1">
                 {project.name}
               </h3>
-              <p className="text-sm text-[#172b4d]/60 mb-4">
-                {project.taskCount || 0} tasks
-              </p>
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <span
                   className={`text-xs font-semibold px-2 py-1 rounded ${getStatusClasses(project.status)}`}

@@ -30,4 +30,10 @@ router.patch(
   taskController.reportBlocker,
 );
 
+// Update task
+router.patch(
+  "/workspaces/:workspaceId/tasks/:taskId",
+  taskController.updateTask,
+);
+
 export default router;
