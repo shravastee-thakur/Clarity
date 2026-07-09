@@ -40,7 +40,7 @@ api.interceptors.response.use(
       originalRequest.url.includes("/magic-login") ||
       originalRequest.url.includes("/sessions") ||
       originalRequest.url.includes("/otp-requests");
-    originalRequest.url.includes("/tokens");
+      originalRequest.url.includes("/tokens");
 
     // Prevent race condition with WorkspaceGuard
     // If accessToken is null but isVerified is true, the WorkspaceGuard
