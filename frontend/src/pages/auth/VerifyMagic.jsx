@@ -15,6 +15,7 @@ const VerifyMagic = () => {
     setWorkspaceStatus,
     setActiveWorkspaceId,
     setWorkspaceRole,
+    setWorkspaceName,
   } = useAuthStore();
   const [error, setError] = useState("");
 
@@ -54,7 +55,15 @@ const VerifyMagic = () => {
         else if (workspaceStatus === "invited") navigate("/workspace/invite");
         else navigate("/workspace");
       } catch (err) {
-        setError("This login link is invalid or has expired.");
+        let message = "Something went wrong. Please try again.";
+        if (error.response?.data?.message) {
+          message = error.response.data.message;
+        } else if (error) {
+          message = error.message;
+        }
+        toast.error(message, {
+          style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
+        });
       }
     };
 
