@@ -24,7 +24,7 @@ if (!accessSecret || !refreshSecret || !magicSecret) {
 }
 
 export const generateAccessToken = (payload: TokenPayload) => {
-  return jwt.sign(payload, accessSecret, { expiresIn: "7d" });
+  return jwt.sign(payload, accessSecret, { expiresIn: "15m" });
 };
 
 export const generateRefreshToken = (payload: TokenPayload) => {

@@ -34,7 +34,6 @@ const Signup = () => {
     setIsLoading(true);
     try {
       const res = await api.post("/api/v1/users/", formData);
-      console.log(res);
       if (res.data.success) {
         toast.success(res.data.message, {
           style: {

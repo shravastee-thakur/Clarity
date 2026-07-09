@@ -31,8 +31,12 @@ const VerifyMagic = () => {
           token,
         });
         const { accessToken, user } = res.data;
-        const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } =
-          user;
+        const {
+          workspaceStatus,
+          activeWorkspaceId,
+          activeWorkspaceRole,
+          workspaceName,
+        } = user;
 
         setAccessToken(accessToken);
         setIsVerified(user.isVerified);
@@ -40,6 +44,7 @@ const VerifyMagic = () => {
         setWorkspaceStatus(workspaceStatus);
         setActiveWorkspaceId(activeWorkspaceId);
         setWorkspaceRole(activeWorkspaceRole);
+        setWorkspaceName(workspaceName);
 
         toast.success(res.data.message, {
           style: { borderRadius: "10px", background: "#25671E", color: "#fff" },
@@ -58,7 +63,7 @@ const VerifyMagic = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-slate-300 flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg border border-slate-200 p-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 text-red-500 mb-4">
             <AlertCircle className="h-8 w-8" />
@@ -79,7 +84,7 @@ const VerifyMagic = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-slate-300 flex flex-col items-center justify-center p-6">
       <div className="flex items-center gap-2 mb-8">
         <CheckSquare className="h-8 w-8 text-[#0344a6]" />
         <span className="text-2xl font-bold text-[#172b4d] tracking-tight">

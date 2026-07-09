@@ -3,7 +3,10 @@ import * as workspaceRepo from "../repositories/workspaceRepo.js";
 import { ProjectWithStats } from "../repositories/projectRepo.js";
 import { ApiError } from "../utils/apiError.js";
 import mongoose from "mongoose";
-import { CreateProjectInput } from "../validators/projectValidator.js";
+import {
+  CreateProjectInput,
+  UpdateProjectInput,
+} from "../validators/projectValidator.js";
 
 export interface ProjectDto {
   _id: string;
@@ -79,4 +82,35 @@ export const getWorkspaceProjects = async (
   const projects =
     await projectRepo.findProjectsByWorkspaceWithStats(workspaceId);
   return projects.map(mapToProjectDto);
+};
+
+export const updateProject = async (
+  userId: string,
+  workspaceId: string,
+  projectId: string,
+  data: UpdateProjectInput,
+): Promise<ProjectDto> => {
+  const member = await workspaceRepo.findWorkspaceMember(workspaceId, userId);
+  if (!member || member.role !== "admin") {
+    throw new ApiError(403, "Only workspace admins can update projects");
+  }
+
+  const updatedProject = await projectRepo.updateProjectById(projectId, data);
+  if (!updatedProject) {
+    throw new ApiError(404, "Project not found");
+  }
+
+  const obj = updatedProject.toObject();
+  return {
+    _id: obj._id.toString(),
+    name: obj.name,
+    description: obj.description,
+    workspace: obj.workspace.toString(),
+    createdBy: obj.createdBy.toString(),
+    status: obj.status,
+    startDate: obj.startDate,
+    endDate: obj.endDate,
+    totalTasks: 0,
+    completedTasks: 0,
+  };
 };

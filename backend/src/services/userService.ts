@@ -30,6 +30,7 @@ export interface UserContext extends UserDto {
   workspaceStatus: "setup" | "active";
   activeWorkspaceId?: string;
   activeWorkspaceRole?: "admin" | "member";
+  workspaceName?: string;
 }
 
 export interface RegisterInput extends CreateUserInput {}
@@ -65,12 +66,18 @@ export const createUser = async (userData: RegisterInput): Promise<UserDto> => {
 export const buildUserContext = async (user: UserDto): Promise<UserContext> => {
   // 1. Check if the user is already a member of any workspace
   const membership = await workspaceRepo.findFirstMembership(user._id);
+
   if (membership) {
+    const workspace = await workspaceRepo.findWorkspaceById(
+      membership.workspace.toString(),
+    );
+
     return {
       ...user,
       workspaceStatus: "active",
       activeWorkspaceId: membership.workspace.toString(),
       activeWorkspaceRole: membership.role,
+      workspaceName: workspace?.name || "Workspace",
     };
   }
 

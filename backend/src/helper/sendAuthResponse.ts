@@ -33,6 +33,7 @@ export const sendAuthResponse = (
         workspaceStatus: user.workspaceStatus,
         activeWorkspaceId: user.activeWorkspaceId,
         activeWorkspaceRole: user.activeWorkspaceRole,
+        workspaceName: user.workspaceName,
       },
     });
 };

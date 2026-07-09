@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Mail, Loader2, CheckSquare, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/axiosinstance";
@@ -15,7 +15,6 @@ const ForgotPassword = () => {
 
     try {
       const res = await api.post("/api/v1/users/password-resets", { email });
-      console.log(res);
 
       if (res.data.success) {
         toast.success(res.data.message, {

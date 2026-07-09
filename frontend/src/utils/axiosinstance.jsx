@@ -91,6 +91,7 @@ api.interceptors.response.use(
           useAuthStore
             .getState()
             .setWorkspaceRole(freshUser.activeWorkspaceRole);
+          useAuthStore.getState().setWorkspaceName(freshUser.workspaceName);
         }
 
         processQueue(null, newAccessToken);

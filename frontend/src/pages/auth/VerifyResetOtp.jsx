@@ -79,7 +79,7 @@ const VerifyResetOtp = () => {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#0344a6]/10 text-[#0344a6] mb-4">
             <Shield className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-bold text-[#172b4d] mb-2">
+          <h1 className="text-2xl font-bold text-[#468432] mb-2">
             Enter verification code
           </h1>
           <p className="text-[#172b4d]/60 text-sm">

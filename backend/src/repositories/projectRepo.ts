@@ -67,3 +67,14 @@ export const findProjectsByWorkspaceWithStats = async (
     { $project: { taskStats: 0 } },
   ]);
 };
+
+export const updateProjectById = async (
+  projectId: string,
+  updateData: Partial<IProject>,
+): Promise<ProjectDocument | null> => {
+  return Project.findByIdAndUpdate(
+    projectId,
+    { $set: updateData },
+    { returnDocument: "after", runValidators: true },
+  );
+};

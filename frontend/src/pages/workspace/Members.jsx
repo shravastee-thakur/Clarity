@@ -155,7 +155,7 @@ const Members = () => {
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#0344a6]/10 text-[#0344a6] text-xs font-bold flex items-center justify-center">
-                  {member.name?.charAt(0) || "U"}
+                  {member.name?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div>
                   <p className="text-sm font-medium text-[#172b4d]">

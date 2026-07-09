@@ -11,7 +11,6 @@ import userRoutes from "./routes/userRoutes.js";
 import workspaceRoutes from "./routes/workspaceRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
-
 import inviteRoutes from "./routes/inviteRoutes.js";
 
 const app = express();

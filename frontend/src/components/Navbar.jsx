@@ -11,13 +11,12 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import api from "../utils/axiosinstance"; // Adjust path if your utils folder is structured differently
+import api from "../utils/axiosinstance";
 import toast from "react-hot-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { userInfo, isVerified, clearAuth } = useAuthStore();
-  console.log(userInfo);
 
   const isLoggedIn = !!isVerified;
 

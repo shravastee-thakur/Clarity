@@ -60,7 +60,6 @@ const AdminDashboard = () => {
 
   const { activeProjects, openTasks, teamMembers, completedToday, bottleneck } =
     stats || {};
-  console.log("stats", stats);
 
   const statItems = [
     {
@@ -74,12 +73,11 @@ const AdminDashboard = () => {
   ];
 
   const activeProjectsList = projects.filter((p) => p.status === "active");
-  console.log(activeProjectsList);
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-[#172b4d]">Macro Dashboard</h1>
+        <h1 className="text-2xl font-bold text-[#172b4d]">Admin Dashboard</h1>
         <p className="text-[#172b4d]/60 mt-1">
           Workspace health and team execution metrics.
         </p>
@@ -91,7 +89,7 @@ const AdminDashboard = () => {
             key={stat.label}
             className="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-md transition-shadow"
           >
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-[#0344a6]/10 text-[#0344a6]">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-[#39B1D1]/20 text-[#0344a6]">
               <stat.icon className="w-5 h-5" />
             </div>
             <p className="text-sm font-medium text-[#172b4d]/60">

@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import * as projectService from "../services/projectService.js";
-import { createProjectSchema } from "../validators/projectValidator.js";
+import {
+  createProjectSchema,
+  updateProjectSchema,
+} from "../validators/projectValidator.js";
 import logger from "../utils/logger.js";
 
 export const createProject = async (
@@ -25,7 +28,13 @@ export const createProject = async (
       projectId: project._id,
     });
 
-    res.status(201).json({ success: true, data: project });
+    res
+      .status(201)
+      .json({
+        success: true,
+        data: project,
+        message: "Project created successfully",
+      });
   } catch (error) {
     next(error);
   }
@@ -45,6 +54,35 @@ export const getWorkspaceProjects = async (
       workspaceId,
     );
     res.status(200).json({ success: true, data: projects });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProject = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const workspaceId = req.params.workspaceId as string;
+    const projectId = req.params.projectId as string;
+
+    const validatedData = updateProjectSchema.parse(req.body);
+
+    const updatedProject = await projectService.updateProject(
+      userId,
+      workspaceId,
+      projectId,
+      validatedData,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      data: updatedProject,
+    });
   } catch (error) {
     next(error);
   }

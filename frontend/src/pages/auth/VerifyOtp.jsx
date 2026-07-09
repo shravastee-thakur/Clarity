@@ -15,6 +15,7 @@ const VerifyOtp = () => {
     setWorkspaceStatus,
     setActiveWorkspaceId,
     setWorkspaceRole,
+    setWorkspaceName,
   } = useAuthStore();
   const [otp, setOtp] = useState("");
   const [expiryTime, setExpiryTime] = useState(300); // 5 minutes
@@ -34,7 +35,6 @@ const VerifyOtp = () => {
   const handleChange = (e) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
     setOtp(value);
-    console.log(typeof otp);
   };
 
   const handleSubmit = async (e) => {
@@ -42,13 +42,16 @@ const VerifyOtp = () => {
 
     try {
       const res = await api.post("/api/v1/users/sessions", { email, otp });
-      console.log(res);
 
       if (res.data.success) {
         if (res.data.success) {
           const { accessToken, user } = res.data;
-          const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } =
-            user;
+          const {
+            workspaceStatus,
+            activeWorkspaceId,
+            activeWorkspaceRole,
+            workspaceName,
+          } = user;
 
           setAccessToken(accessToken);
           setIsVerified(user.isVerified);
@@ -56,6 +59,7 @@ const VerifyOtp = () => {
           setWorkspaceStatus(workspaceStatus);
           setActiveWorkspaceId(activeWorkspaceId);
           setWorkspaceRole(activeWorkspaceRole);
+          setWorkspaceName(workspaceName);
 
           toast.success(res.data.message, {
             style: {
@@ -99,7 +103,7 @@ const VerifyOtp = () => {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#0344a6]/10 text-[#0344a6] mb-4">
             <Shield className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-bold text-[#172b4d] mb-2">
+          <h1 className="text-2xl font-bold text-[#468432] mb-2">
             Enter verification code
           </h1>
           <p className="text-[#172b4d]/60 text-sm">

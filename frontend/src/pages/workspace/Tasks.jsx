@@ -161,7 +161,6 @@ const Tasks = () => {
       } else if (err) {
         message = err.message;
       }
-      console.log(message);
     }
   };
 

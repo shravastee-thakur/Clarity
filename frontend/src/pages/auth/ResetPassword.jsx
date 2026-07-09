@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Lock,
   Eye,
@@ -72,7 +72,7 @@ const ResetPassword = () => {
           <div className="w-14 h-14 bg-[#0344a6]/10 rounded-full flex items-center justify-center mb-4">
             <Lock className="h-7 w-7 text-[#0344a6]" />
           </div>
-          <h1 className="text-xl font-semibold text-[#172b4d]">
+          <h1 className="text-xl font-semibold text-[#468432]">
             Set new password
           </h1>
           <p className="text-sm text-[#172b4d]/60 mt-1 text-center">

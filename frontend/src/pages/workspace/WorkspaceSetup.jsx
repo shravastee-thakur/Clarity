@@ -57,7 +57,7 @@ const WorkspaceSetup = () => {
     setIsLoading(true);
     try {
       const res = await api.post("/api/v1/workspaces", formData);
-      console.log(res);
+
 
       const workspaceId = res.data.data._id;
       setActiveWorkspaceId(workspaceId);

@@ -16,4 +16,10 @@ router.get(
   projectController.getWorkspaceProjects,
 );
 
+router.patch(
+  "/workspaces/:workspaceId/projects/:projectId",
+  authenticate,
+  projectController.updateProject,
+);
+
 export default router;

@@ -27,10 +27,11 @@ const AcceptInvite = () => {
     const acceptInvite = async () => {
       try {
         const res = await api.post("/api/v1/invites/accept", { token });
-        console.log(res);
+
         if (res.data.success) {
           const { accessToken, user } = res.data;
-          const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } = user;
+          const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } =
+            user;
 
           setAccessToken(accessToken);
           setUserInfo(user);

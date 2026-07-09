@@ -37,11 +37,12 @@ const WorkspaceGuard = () => {
           setAccessToken(newAccessToken);
 
           if (res.data.user) {
-            const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole } =
+            const { workspaceStatus, activeWorkspaceId, activeWorkspaceRole, workspaceName } =
               res.data.user;
             useAuthStore.getState().setWorkspaceStatus(workspaceStatus);
             useAuthStore.getState().setActiveWorkspaceId(activeWorkspaceId);
             useAuthStore.getState().setWorkspaceRole(activeWorkspaceRole);
+            useAuthStore.getState().setWorkspaceName(workspaceName);
           }
 
           setIsSessionRestored(true); // <--- SIGNAL THAT SESSION IS READY
