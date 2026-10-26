@@ -1,5 +1,6 @@
 import User, { IUser, IUserMethods } from "../models/userModel.js";
 import { HydratedDocument } from "mongoose";
+import bcrypt from "bcrypt";
 
 export type UserDocument = HydratedDocument<IUser, IUserMethods>;
 
@@ -29,4 +30,22 @@ export const updateUser = async (
   userData: Partial<IUser>,
 ): Promise<UserDocument | null> => {
   return User.findByIdAndUpdate(userId, userData, { returnDocument: "after" });
+};
+
+export const updatePasswordAndInvalidateSessions = async (
+  userId: string,
+  newPassword: string,
+) => {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  // This sends a direct, atomic command to MongoDB, bypassing the .save() bug
+  return User.updateOne(
+    { _id: userId },
+    {
+      $set: {
+        password: hashedPassword,
+        refreshToken: "",
+      },
+    },
+  );
 };
