@@ -34,8 +34,8 @@ vi.mock("../../src/middlewares/rateLimiter.js", () => ({
 describe("Auth Flow: Password reset", () => {
   beforeEach(() => {
     emailMocks.sendPasswordResetEmail.mockClear();
-    otpMocks.verifyAndIssueResetToken.mockClear();
-    otpMocks.consumeResetToken.mockClear();
+    otpMocks.verifyAndIssueResetToken.mockReset();
+    otpMocks.consumeResetToken.mockReset();
   });
 
   it("resets the password and kills existing sessions", async () => {
@@ -68,7 +68,7 @@ describe("Auth Flow: Password reset", () => {
 
     otpMocks.consumeResetToken.mockResolvedValueOnce(true);
     const patchRes = await request(app)
-      .post("/api/v1/users/password-resets")
+      .patch("/api/v1/users/password-resets")
       .send({
         email: "reset@example.com",
         resetToken: FAKE_RESET_TOKEN,
@@ -124,9 +124,7 @@ describe("Auth Flow: Password reset", () => {
       newPassword: "newpassword123",
     });
 
-    console.log(res.status);
-
-    // expect(res.status).toBe(401);
+    expect(res.status).toBe(401);
   });
 
   it("returns a generic message for unknown emails and sends nothing", async () => {

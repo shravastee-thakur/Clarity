@@ -253,15 +253,11 @@ export const updatePasswordWithToken = async (
   const user = await userRepo.findByEmail(email);
   if (!user) throw new ApiError(404, "User not found");
 
-  // user.password = newPassword;
-  await userRepo.updatePasswordAndInvalidateSessions(
-    user._id.toString(),
-    newPassword,
-  );
+  user.password = newPassword;
 
   // Critical security step: Invalidate all existing sessions upon password change
-  // user.refreshToken = "";
-  // await user.save();
+  user.refreshToken = "";
+  await user.save();
 
   return { success: true, message: "Password updated successfully" };
 };

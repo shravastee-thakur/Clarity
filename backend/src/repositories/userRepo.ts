@@ -31,21 +31,3 @@ export const updateUser = async (
 ): Promise<UserDocument | null> => {
   return User.findByIdAndUpdate(userId, userData, { returnDocument: "after" });
 };
-
-export const updatePasswordAndInvalidateSessions = async (
-  userId: string,
-  newPassword: string,
-) => {
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  // This sends a direct, atomic command to MongoDB, bypassing the .save() bug
-  return User.updateOne(
-    { _id: userId },
-    {
-      $set: {
-        password: hashedPassword,
-        refreshToken: "",
-      },
-    },
-  );
-};
