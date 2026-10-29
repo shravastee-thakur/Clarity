@@ -40,7 +40,6 @@ describe("Auth Flow: Logout", () => {
   it("rejects logout attempts without a valid token", async () => {
     const res = await request(app).delete("/api/v1/users/sessions");
 
-    // Your authenticate middleware should block this with a 401
     expect(res.status).toBe(401);
   });
 });
