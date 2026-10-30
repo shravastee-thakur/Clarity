@@ -1,7 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
 import User from "../../src/models/userModel.js";
 import app from "../../src/app.js";
+
+vi.mock("../../src/middlewares/securityMiddleware.js", () => ({
+  securityMiddleware: (req: any, res: any, next: any) => next(),
+}));
+
+vi.mock("../../src/middlewares/rateLimiter.js", () => ({
+  rateLimiterMiddleware: () => (req: any, res: any, next: any) => next(),
+}));
 
 describe("POST /api/v1/users (Register)", () => {
   it("creates a new user and returns 201", async () => {
