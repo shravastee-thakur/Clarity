@@ -1,0 +1,56 @@
+name: Clarity Backend CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        env:
+          NODE_ENV: test
+          PORT: "3000"
+
+          MONGO_URL: "mongodb://localhost:27017/test"
+          FRONTEND_URL: "http://localhost:5173"
+          IOREDIS_URL: "redis://localhost:6379"
+
+          HMAC_SECRET: "ci-test-hmac-secret-min-10-chars"
+          ACCESS_SECRET: "ci-test-access-secret"
+          REFRESH_SECRET: "ci-test-refresh-secret"
+          MAGIC_SECRET: "ci-test-magic-secret"
+          BREVO_API_KEY: "ci-test-brevo-api-key"
+          SENDER_EMAIL: "ci-test@example.com"
+          ARCJET_KEY: "ci-test-arcjet-key"
+        run: npm run test
+        
+      - name: Build TypeScript
+        run: npm run build
