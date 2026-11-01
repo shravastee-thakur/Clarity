@@ -68,6 +68,12 @@ export const findProjectsByWorkspaceWithStats = async (
   ]);
 };
 
+export const findProjectById = async (
+  projectId: string,
+): Promise<ProjectDocument | null> => {
+  return Project.findById(projectId).exec();
+};
+
 export const updateProjectById = async (
   projectId: string,
   updateData: Partial<IProject>,
