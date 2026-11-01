@@ -95,6 +95,12 @@ export const updateProject = async (
     throw new ApiError(403, "Only workspace admins can update projects");
   }
 
+  // SECURITY PATCH: Ensure the project actually belongs to the requested workspace
+  const targetProject = await projectRepo.findProjectById(projectId);
+  if (!targetProject || targetProject.workspace.toString() !== workspaceId) {
+    throw new ApiError(404, "Project not found in this workspace");
+  }
+
   const updatedProject = await projectRepo.updateProjectById(projectId, data);
   if (!updatedProject) {
     throw new ApiError(404, "Project not found");
