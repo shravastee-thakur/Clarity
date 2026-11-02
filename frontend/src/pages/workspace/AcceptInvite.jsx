@@ -15,7 +15,7 @@ const AcceptInvite = () => {
     setActiveWorkspaceId,
     setWorkspaceRole,
   } = useAuthStore();
-  const [error, setError] = useState("");
+  const [error] = useState("");
 
   useEffect(() => {
     const token = new URLSearchParams(location.search).get("token");

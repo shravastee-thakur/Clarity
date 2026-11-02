@@ -60,16 +60,20 @@ const Tasks = () => {
 
   useEffect(() => {
     if (isAdmin && !editingTask) {
-      if (projects.length > 0 && !formData.projectId) {
-        setFormData((prev) => ({ ...prev, projectId: projects[0]._id }));
-      }
-      if (members.length > 0 && !formData.assigneeId) {
-        setFormData((prev) => ({
-          ...prev,
-          assigneeId: members[0].userId || members[0]._id,
-        }));
-      }
+      setTimeout(() => {
+        setFormData((prev) => {
+          let updates = { ...prev };
+          if (projects.length > 0 && !prev.projectId) {
+            updates.projectId = projects[0]._id;
+          }
+          if (members.length > 0 && !prev.assigneeId) {
+            updates.assigneeId = members[0]._id;
+          }
+          return updates;
+        });
+      }, 0);
     }
+     
   }, [projects, members, isAdmin, editingTask]);
 
   // 2. Fetch tasks
@@ -103,7 +107,7 @@ const Tasks = () => {
           setTasks(res.data.data || []);
         }
       } catch (error) {
-        toast.error("Failed to load tasks");
+        toast.error(error.response?.data?.message || "Failed to load tasks");
       } finally {
         setIsLoadingTasks(false);
       }
@@ -155,11 +159,15 @@ const Tasks = () => {
     } catch (err) {
       setTasks(originalTasks);
       toast.error("Failed to update status");
-      let message = "Something went wrong. Please try again.";
       if (err.response?.data?.message) {
-        message = err.response.data.message;
+        const message =
+          err.response.data.message ||
+          "Something went wrong. Please try again.";
+
+        toast.error(message);
       } else if (err) {
-        message = err.message;
+        const message = err.message;
+        console.log(message);
       }
     }
   };

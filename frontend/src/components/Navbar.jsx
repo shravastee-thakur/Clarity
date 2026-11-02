@@ -4,7 +4,6 @@ import {
   ChevronDown,
   User,
   Briefcase,
-  Settings,
   LogOut,
   Menu,
   X,

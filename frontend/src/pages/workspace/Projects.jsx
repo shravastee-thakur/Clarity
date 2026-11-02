@@ -1,13 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Plus,
-  FolderKanban,
-  Calendar,
-  MoreHorizontal,
-  X,
-  Loader2,
-  Edit,
-} from "lucide-react";
+import { Plus, FolderKanban, Calendar, X, Loader2, Edit } from "lucide-react";
 import api from "../../utils/axiosinstance";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
@@ -39,7 +31,7 @@ const Projects = () => {
         );
         if (res.data.success) setProjects(res.data.data);
       } catch (error) {
-        toast.error("Failed to load projects");
+        toast.error(error.response?.data?.message || "Failed to load projects");
       } finally {
         setIsLoading(false);
       }
@@ -116,11 +108,15 @@ const Projects = () => {
       handleCloseModal();
     } catch (err) {
       toast.error("Failed to update status");
-      let message = "Something went wrong. Please try again.";
       if (err.response?.data?.message) {
-        message = err.response.data.message;
+        const message =
+          err.response.data.message ||
+          "Something went wrong. Please try again.";
+
+        toast.error(message);
       } else if (err) {
-        message = err.message;
+        const message = err.message;
+        console.log(message);
       }
     } finally {
       setIsSubmitting(false);

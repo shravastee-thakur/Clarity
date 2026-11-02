@@ -1,6 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { ApiError } from "./apiError.js";
+import logger from "./logger.js";
 
 export interface TokenPayload extends JwtPayload {
   id: string;
@@ -35,6 +36,7 @@ export const verifyAccessToken = (token: string): TokenPayload => {
   try {
     return jwt.verify(token, accessSecret) as TokenPayload;
   } catch (error) {
+    logger.error(error);
     throw new ApiError(401, "Invalid or expired access token");
   }
 };
@@ -43,6 +45,7 @@ export const verifyRefreshToken = (token: string): TokenPayload => {
   try {
     return jwt.verify(token, refreshSecret) as TokenPayload;
   } catch (error) {
+    logger.error(error);
     throw new ApiError(401, "Invalid or expired refresh token");
   }
 };
@@ -69,6 +72,7 @@ export const verifyMagicToken = (
 
     return decoded;
   } catch (error) {
+    logger.error(error);
     throw new ApiError(401, "Invalid or expired magic link");
   }
 };

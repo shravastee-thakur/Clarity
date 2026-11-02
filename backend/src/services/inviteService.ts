@@ -11,6 +11,7 @@ import {
   createTokensAndSave,
 } from "../services/userService.js";
 import mongoose from "mongoose";
+import logger from "../utils/logger.js";
 
 export interface InviteDto {
   _id: string;
@@ -100,6 +101,7 @@ export const acceptWorkspaceInvite = async (token: string) => {
   try {
     decoded = verifyMagicToken(token, "workspace_invite");
   } catch (error) {
+    logger.error(error);
     throw new ApiError(401, "Invalid or expired invitation link");
   }
 
