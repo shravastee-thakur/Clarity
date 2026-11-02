@@ -4,7 +4,6 @@ import {
   X,
   HelpCircle,
   ArrowRight,
-  Building2,
   ChevronDown,
 } from "lucide-react";
 import Footer from "../components/Footer";

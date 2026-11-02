@@ -59,7 +59,7 @@ const EmployeeDashboard = () => {
       toast.success("Blocker reported. Your manager has been notified.");
     } catch (error) {
       setFocusTasks(originalTasks);
-      toast.error("Failed to report blocker.");
+      toast.error(error.response?.data?.message || "Failed to report blocker.");
     }
   };
 

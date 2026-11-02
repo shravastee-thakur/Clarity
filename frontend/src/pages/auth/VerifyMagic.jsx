@@ -17,7 +17,7 @@ const VerifyMagic = () => {
     setWorkspaceRole,
     setWorkspaceName,
   } = useAuthStore();
-  const [error, setError] = useState("");
+  const [error] = useState("");
 
   useEffect(() => {
     const token = new URLSearchParams(location.search).get("token");
@@ -54,7 +54,7 @@ const VerifyMagic = () => {
         if (workspaceStatus === "setup") navigate("/workspace/setup");
         else if (workspaceStatus === "invited") navigate("/workspace/invite");
         else navigate("/workspace");
-      } catch (err) {
+      } catch (error) {
         let message = "Something went wrong. Please try again.";
         if (error.response?.data?.message) {
           message = error.response.data.message;

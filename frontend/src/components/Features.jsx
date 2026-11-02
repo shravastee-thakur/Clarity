@@ -1,5 +1,4 @@
-import React from "react";
-import { Layout, Users, Bell, ArrowUpRight } from "lucide-react";
+import { Layout, Users, Bell } from "lucide-react";
 
 const Features = () => {
   const features = [

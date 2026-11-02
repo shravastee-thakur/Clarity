@@ -15,6 +15,7 @@ import {
 } from "../utils/jwt.js";
 import * as emailService from "../services/emailService.js";
 import { LoginInput } from "../validators/authValidator.js";
+import logger from "../utils/logger.js";
 
 export interface UserDto {
   _id: string;
@@ -177,6 +178,7 @@ export const rotateRefreshToken = async (oldToken: string) => {
   try {
     decoded = verifyRefreshToken(oldToken);
   } catch (error) {
+    logger.error(error);
     throw new ApiError(401, "Invalid or expired refresh token");
   }
 
@@ -306,6 +308,7 @@ export const verifyMagicLogin = async (token: string) => {
     // Call the utility function, not the service function itself
     decoded = verifyMagicToken(token, "magic_login");
   } catch (error) {
+    logger.error(error);
     throw new ApiError(401, "Invalid or expired login link");
   }
 

@@ -30,7 +30,9 @@ const Members = () => {
         setMembers(membersRes.data.data || []);
         setInvites(invitesRes.data.data || []);
       } catch (error) {
-        toast.error("Failed to load team data");
+        toast.error(
+          error.response?.data?.message || "Failed to load team data",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +72,7 @@ const Members = () => {
       toast.success("Invitation revoked");
       setInvites(invites.filter((inv) => inv._id !== inviteId));
     } catch (error) {
-      toast.error("Failed to revoke invite");
+      toast.error(error.response?.data?.message || "Failed to revoke invite");
     }
   };
 
