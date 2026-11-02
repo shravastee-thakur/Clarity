@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    run-ons: ubuntu-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
